@@ -72,8 +72,9 @@ class MyDB extends PDO
   {
     $where = "";
     foreach ($awhere as $key => $value) {
-      $where .= $key."=".$value." "; 
+      $where .= $key."='".$value."' "; 
     }
+    // var_dump("select * from ".$tableName." where ".$where);
   	$consulta = $this->mydb->prepare("select * from ".$tableName." where ".$where);
     $consulta->execute();
     // Retornamos los resultados en un array asociativo.
@@ -89,6 +90,62 @@ class MyDB extends PDO
     $consulta = $this->mydb->prepare("delete from ".$tableName." where ".$where);
     $consulta->execute();
     // Retornamos los resultados en un array asociativo.
+    return $consulta->rowCount();
+  }
+  public function login($tableName, $awhere)
+  {
+    // $where = "";
+    // foreach ($awhere as $key => $value) {
+    //   $where .= $key."=".$value." AND";
+    // }
+    // $where = substr("where", 0, -1);
+    // $consulta = $this->mydb->prepare("delete from ".$tableName." where ".$where);
+    // $consulta->execute();
+    // // Retornamos los resultados en un array asociativo.
+    // return $consulta->rowCount();
+  }
+  public function post($tableName,$data)
+  {
+    $keys= "";$values= "";
+    $params = array();
+    $cont = 0;
+
+    foreach ($data as $key => $value) {
+      $keys .= $key.",";
+      $params[$cont] = $value;
+      $values .= "?,";
+      $cont += 1;
+    }
+    $keys = substr($keys, 0, -1);
+    $values = substr($values, 0, -1);
+
+    $consulta = $this->mydb->prepare("insert into ".$tableName."(".$keys.") 
+          values (".$values.")");
+    //mandamos el insert con los parametros recibidos
+    return $consulta->execute($params) == true ? $this->mydb->lastInsertId() : 0;
+  }
+  public function put($tableName,$awhere,$data)
+  {
+    $keys= "";
+    $params = array();
+    $cont = 0;
+    $where = "";
+
+    foreach ($data as $key => $value) {
+      $keys .= $key."=?,";
+      $params[$cont] = $value;
+      $cont += 1;
+    }
+    $keys = substr($keys, 0, -1);
+
+    foreach ($awhere as $key => $value) {
+      $where .= $key."=".$value." "; 
+    }
+    $query = "update ".$tableName." set ".$keys." where ".$where;
+    var_dump($query);
+    $consulta = $this->mydb->prepare("update ".$tableName." set ".$keys." where ".$where);
+    //mandamos el insert con los parametros recibidos
+    $consulta->execute($params);
     return $consulta->rowCount();
   }
 }

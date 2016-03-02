@@ -2,9 +2,14 @@
 require __DIR__ . '/../lib/myConnection.php';
 require __DIR__ . '/../lib/doctor.php';
 require __DIR__ . '/../lib/especialidad.php';
+require __DIR__ . '/../lib/paciente.php';
+require __DIR__ . '/../lib/login.php';
+require __DIR__ . '/../lib/usuario.php';
 $doctor = new Doctor();
 $especialidad = new Especialidad();
-
+$paciente = new Paciente();
+$login = new Login();
+$usuario = new Usuario();
 // Routes
 
 // Obtener todos los Registros
@@ -111,4 +116,61 @@ $app->delete('/especialidad/{id}', function($req, $res, $args) use($especialidad
 // Actualización de datos (PUT)
 $app->put('/especialidad/{id}', function($req, $res, $args) use($especialidad) {
   echo $especialidad->put($req, $args['id']);
+});
+// ###########################
+//         Pacientes 
+// ###########################
+// Obtener todos los Registros
+$app->get('/pacientes', function($req, $res, $args) use($paciente) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($paciente->get());
+});
+// Obtener registro por medio de su id
+$app->get('/paciente/{id}', function($req, $res, $args) use($paciente) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($paciente->getRegistro($args['id']));
+});
+// Alta de un nuevo
+$app->post('/paciente',function($req, $res, $args) use($paciente) {
+  echo $estado = $paciente->post($req);
+});
+// Programamos la ruta de borrado en la API REST (DELETE)
+$app->delete('/paciente/{id}', function($req, $res, $args) use($paciente) {
+  echo $paciente->delete($args['id']);
+});
+// Actualización de datos (PUT)
+$app->put('/paciente/{id}', function($req, $res, $args) use($paciente) {
+  echo $paciente->put($req, $args['id']);
+});
+// ###########################
+//         Usuarios 
+// ###########################
+// Obtener todos los Registros
+$app->get('/usuarios', function($req, $res, $args) use($usuario) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($usuario->get());
+});
+// Obtener registro por medio de su id
+$app->get('/usuario/{id}', function($req, $res, $args) use($usuario) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($usuario->getRegistro($args['id']));
+});
+// Alta de un nuevo
+$app->post('/usuario',function($req, $res, $args) use($usuario) {
+  echo $estado = $usuario->post($req);
+});
+// Programamos la ruta de borrado en la API REST (DELETE)
+$app->delete('/usuario/{id}', function($req, $res, $args) use($usuario) {
+  echo $usuario->delete($args['id']);
+});
+// Actualización de datos (PUT)
+$app->put('/usuario/{id}', function($req, $res, $args) use($usuario) {
+  echo $usuario->put($req, $args['id']);
+});
+// ###########################
+//         Login 
+// ###########################
+// Validar usuario
+$app->post('/login',function($req, $res, $args) use($login) {
+  echo $login->login($req);
 });
