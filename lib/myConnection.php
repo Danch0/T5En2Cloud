@@ -58,6 +58,26 @@ class MyDB extends PDO
 		$dns = 'mysql'.':dbname='.BD_NOMBRE.";host=".BD_SERVIDOR; 
 	  parent::__construct( $dns, BD_USUARIO, BD_PASSWORD ); 
   }
+  //Obtener usuarios
+  public function getUsuarios($limit = 0)
+  {
+    $limit = $limit != 0 ? string($limit) : "1000";
+    // echo $limit;
+    $consulta = $this->mydb->prepare("(select * from usuario_ma where isnull(usuario_ma.id_doctor_doctor_ma)) union (select u.id_usuario, u.id_doctor_doctor_ma, u.id_rol_rol_cat, d.nombre_txt, d.apellido_pat_txt, d.apellido_mat_txt, u.username_txt, u.password_txt, u.email_txt, u.fecha_alta_dt, u.ultimo_login_dt, u.activo_bol from usuario_ma as u join doctor_ma as d on u.id_doctor_doctor_ma = d.id_doctor) limit ".$limit);
+    $consulta->execute();
+    // Retornamos los resultados en un array asociativo.
+    return $consulta->fetchAll(PDO::FETCH_ASSOC);
+  }
+  //Obtener usuarios
+  public function getUsuario($id)
+  {
+    $query = "(select * from usuario_ma as u1 where isnull(u1.id_doctor_doctor_ma) and u1.id_usuario = ".$id.") union (select u.id_usuario, u.id_doctor_doctor_ma, u.id_rol_rol_cat, d.nombre_txt, d.apellido_pat_txt, d.apellido_mat_txt, u.username_txt, u.password_txt, u.email_txt, u.fecha_alta_dt, u.ultimo_login_dt, u.activo_bol from usuario_ma as u join doctor_ma as d on u.id_doctor_doctor_ma = d.id_doctor where id_usuario = ".$id.")";
+    // echo $query;
+    $consulta = $this->mydb->prepare($query);
+    $consulta->execute();
+    // Retornamos los resultados en un array asociativo.
+    return $consulta->fetchAll(PDO::FETCH_ASSOC);
+  }
   //Obtener registros de una tabla
   public function getAll($tableName, $limit = 0)
   {
@@ -142,8 +162,9 @@ class MyDB extends PDO
       $where .= $key."=".$value." "; 
     }
     $query = "update ".$tableName." set ".$keys." where ".$where;
-    var_dump($query);
-    $consulta = $this->mydb->prepare("update ".$tableName." set ".$keys." where ".$where);
+    // var_dump($query);
+    // var_dump($params);
+    $consulta = $this->mydb->prepare($query);
     //mandamos el insert con los parametros recibidos
     $consulta->execute($params);
     return $consulta->rowCount();

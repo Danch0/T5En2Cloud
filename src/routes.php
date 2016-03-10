@@ -5,11 +5,13 @@ require __DIR__ . '/../lib/especialidad.php';
 require __DIR__ . '/../lib/paciente.php';
 require __DIR__ . '/../lib/login.php';
 require __DIR__ . '/../lib/usuario.php';
+require __DIR__ . '/../lib/rol.php';
 $doctor = new Doctor();
 $especialidad = new Especialidad();
 $paciente = new Paciente();
 $login = new Login();
 $usuario = new Usuario();
+$rol = new Rol();
 // Routes
 
 // Obtener todos los Registros
@@ -173,4 +175,29 @@ $app->put('/usuario/{id}', function($req, $res, $args) use($usuario) {
 // Validar usuario
 $app->post('/login',function($req, $res, $args) use($login) {
   echo $login->login($req);
+});
+// ###########################
+//         Roles 
+// ###########################
+// Obtener todos los Registros
+$app->get('/roles', function($req, $res, $args) use($rol) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($rol->get());
+});
+// Obtener registro por medio de su id
+$app->get('/rol/{id}', function($req, $res, $args) use($rol) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($rol->getRegistro($args['id']));
+});
+// Alta de un nuevo
+$app->post('/rol',function($req, $res, $args) use($rol) {
+  echo $estado = $rol->post($req);
+});
+// Programamos la ruta de borrado en la API REST (DELETE)
+$app->delete('/rol/{id}', function($req, $res, $args) use($rol) {
+  echo $rol->delete($args['id']);
+});
+// Actualización de datos (PUT)
+$app->put('/rol/{id}', function($req, $res, $args) use($rol) {
+  echo $rol->put($req, $args['id']);
 });

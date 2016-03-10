@@ -1,6 +1,6 @@
 <?php
 
-class Usuario{
+class Rol{
 	protected $mydb;
 
 	public function __construct() {
@@ -10,17 +10,17 @@ class Usuario{
 
 	public function get() {
 		//Manadamos llamar la funcion getAll('NombreTabla') de la clase myDB()
-    // return $this->mydb->getAll('usuario_ma');
-    return $this->mydb->getUsuarios();
+    // return $this->mydb->getAll('rol_cat');
+    return $this->mydb->getAll('rol_cat');
 	}
 
 	public function getRegistro($id) {
 		//Manadamos llamar la funcion getRegistro('NombreTabla', array('id_tabla' => $id)) de la clase myDB()
-    return $this->mydb->getUsuario($id);
+    return $this->mydb->getRegistro('rol_cat',array('id_rol' => $id));
 	}
 
 	public function delete($id) {
-		$consulta = $this->mydb->delete('usuario_ma',array('id_usuario' => $id));
+		$consulta = $this->mydb->delete('rol_cat',array('id_rol' => $id));
 	  if ($consulta == 1)
 			return json_encode(array('estado'=>true,'mensaje'=>'El registro con id:'.$id.' ha sido borrado correctamente.'));
 		else
@@ -29,13 +29,12 @@ class Usuario{
 
 	public function post($req) {
 		$data = $req->getParsedBody();
+
 		if (is_null($data)) {
 			return json_encode(array('estado'=>false,'mensaje'=>'Los datos recibidos no corresponden a formato valido'));
 		};
-		$data['password_txt'] = crypt($data['password_txt'], ".TRU350LUT10N5}");
-		$data['activo_bol'] = TRUE;
 
-    $estado = $this->mydb->post('usuario_ma', $data);
+    $estado = $this->mydb->post('rol_cat', $data);
 	  if ($estado != 0)
  	    return json_encode(array('estado'=>true,'mensaje'=>'Datos insertados correctamente.','newId'=>$estado));
  		else
@@ -46,11 +45,8 @@ class Usuario{
 		$data = $req->getParsedBody();
 		if (is_null($data))
 			return json_encode(array('estado'=>false,'mensaje'=>'Los datos recibidos no corresponden a formato json'));
-		
-		$user = $this->getRegistro($id);
-    $data['password_txt'] = hash_equals($user[0]['password_txt'], $data['password_txt']) ? $data['password_txt']:crypt($data['password_txt']);
-		
-		$estado = $this->mydb->put('usuario_ma',array('id_usuario'=>$id), $data);
+	  
+		$estado = $this->mydb->put('rol_cat',array('id_rol'=>$id), $data);
 	  if ($estado != 0)
 	     return json_encode(array('estado'=>true,'mensaje'=>'Datos actualizados correctamente.'));
 	  else
