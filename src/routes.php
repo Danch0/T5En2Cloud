@@ -6,12 +6,20 @@ require __DIR__ . '/../lib/paciente.php';
 require __DIR__ . '/../lib/login.php';
 require __DIR__ . '/../lib/usuario.php';
 require __DIR__ . '/../lib/rol.php';
+require __DIR__ . '/../lib/tipoMedia.php';
+require __DIR__ . '/../lib/ficha.php';
+require __DIR__ . '/../lib/endodoncia.php';
+require __DIR__ . '/../lib/endodonciaDiente.php';
 $doctor = new Doctor();
 $especialidad = new Especialidad();
 $paciente = new Paciente();
 $login = new Login();
 $usuario = new Usuario();
 $rol = new Rol();
+$tipoMedia = new TipoMedia();
+$ficha = new Ficha();
+$endodoncia = new Endodoncia();
+$endodoncia_diente = new EndodonciaDiente();
 // Routes
 
 // Obtener todos los Registros
@@ -200,4 +208,106 @@ $app->delete('/rol/{id}', function($req, $res, $args) use($rol) {
 // Actualización de datos (PUT)
 $app->put('/rol/{id}', function($req, $res, $args) use($rol) {
   echo $rol->put($req, $args['id']);
+});
+// ###########################
+//         tipo_media 
+// ###########################
+// Obtener todos los Registros
+$app->get('/tipos-media', function($req, $res, $args) use($tipoMedia) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($tipoMedia->get());
+});
+// Obtener registro por medio de su id
+$app->get('/tipo-media/{id}', function($req, $res, $args) use($tipoMedia) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($tipoMedia->getRegistro($args['id']));
+});
+// Alta de un nuevo
+$app->post('/tipo-media',function($req, $res, $args) use($tipoMedia) {
+  echo $tipoMedia->post($req);
+});
+// Programamos la ruta de borrado en la API REST (DELETE)
+$app->delete('/tipo-media/{id}', function($req, $res, $args) use($tipoMedia) {
+  echo $tipoMedia->delete($args['id']);
+});
+// Actualización de datos (PUT)
+$app->put('/tipo-media/{id}', function($req, $res, $args) use($tipoMedia) {
+  echo $tipoMedia->put($req, $args['id']);
+});
+// ###########################
+//          ficha 
+// ###########################
+// Obtener todos los Registros
+$app->get('/fichas', function($req, $res, $args) use($ficha) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($ficha->get());
+});
+// Obtener registro por medio de su id
+$app->get('/ficha/{id}', function($req, $res, $args) use($ficha) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($ficha->getRegistro($args['id']));
+});
+// Alta de un nuevo
+$app->post('/ficha',function($req, $res, $args) use($ficha) {
+  echo $ficha->post($req);
+});
+// Programamos la ruta de borrado en la API REST (DELETE)
+$app->delete('/ficha/{id}', function($req, $res, $args) use($ficha) {
+  echo $ficha->delete($args['id']);
+});
+// Actualización de datos (PUT)
+$app->put('/ficha/{id}', function($req, $res, $args) use($ficha) {
+  echo $ficha->put($req, $args['id']);
+});
+
+// ###########################
+//          endodoncia 
+// ###########################
+// Obtener todos los Registros
+$app->get('/endodoncias', function($req, $res, $args) use($endodoncia) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($endodoncia->get());
+});
+// Obtener registro por medio de su id
+$app->get('/endodoncia/{id}', function($req, $res, $args) use($endodoncia) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($endodoncia->getRegistro($args['id']));
+});
+// Alta de un nuevo
+$app->post('/endodoncia',function($req, $res, $args) use($endodoncia) {
+  echo $endodoncia->post($req);
+});
+// Programamos la ruta de borrado en la API REST (DELETE)
+$app->delete('/endodoncia/{id}', function($req, $res, $args) use($endodoncia) {
+  echo $endodoncia->delete($args['id']);
+});
+// Actualización de datos (PUT)
+$app->put('/endodoncia/{id}', function($req, $res, $args) use($endodoncia) {
+  echo $endodoncia->put($req, $args['id']);
+});
+
+// ###########################
+//          endodoncia_diente 
+// ###########################
+// Obtener todos los Registros
+$app->get('/endodoncias-dientes', function($req, $res, $args) use($endodoncia_diente) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($endodoncia_diente->get());
+});
+// Obtener registro por medio de su id
+$app->get('/endodoncia-diente/{id}', function($req, $res, $args) use($endodoncia_diente) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($endodoncia_diente->getRegistro($args['id']));
+});
+// Alta de un nuevo
+$app->post('/endodoncia-diente',function($req, $res, $args) use($endodoncia_diente) {
+  echo $endodoncia_diente->post($req);
+});
+// Programamos la ruta de borrado en la API REST (DELETE)
+$app->delete('/endodoncia-diente/{id}', function($req, $res, $args) use($endodoncia_diente) {
+  echo $endodoncia_diente->delete($args['id']);
+});
+// Actualización de datos (PUT)
+$app->put('/endodoncia-diente/{id}', function($req, $res, $args) use($endodoncia_diente) {
+  echo $endodoncia_diente->put($req, $args['id']);
 });

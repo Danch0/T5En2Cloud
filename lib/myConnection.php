@@ -85,7 +85,24 @@ class MyDB extends PDO
   	$consulta = $this->mydb->prepare("select * from ".$tableName." limit ".$limit);
 		$consulta->execute();
     // Retornamos los resultados en un array asociativo.
-    return $consulta->fetchAll(PDO::FETCH_ASSOC);
+    $result = ($consulta->fetchAll(PDO::FETCH_ASSOC));
+    // var_dump($result);
+    // $json = '{"a":"Hola","b":"Mundo","c":3,"d":4,"e":5}';
+    // $json = '';
+    try {
+      foreach ($result as $key => $value) {
+        foreach ($value as $key2 => $value2) {
+          if(is_array(json_decode($value2,true))){
+            $result[$key][$key2] = json_decode($value2,true);
+          }
+        }
+      }
+      return $result;
+        // return(json_decode($json));
+    } catch (Exception $e) {
+        return json_encode(array('estado'=>false,'mensaje'=>$e->getMessage()));
+    }
+    // var_dump(json_decode($json, true));
   }
   // Obtener registro especifico de tabla ?
   public function getRegistro($tableName, $awhere)
@@ -130,19 +147,57 @@ class MyDB extends PDO
     $params = array();
     $cont = 0;
 
-    foreach ($data as $key => $value) {
-      $keys .= $key.",";
-      $params[$cont] = $value;
-      $values .= "?,";
-      $cont += 1;
-    }
-    $keys = substr($keys, 0, -1);
-    $values = substr($values, 0, -1);
+    // $data['id_endodoncia_endodoncia_ma'] = 1;
+    try {
+      foreach ($data as $key => $value) {
+        $keys .= $key.",";
+        $param = '{"';
+        if (strpos($key, 'json') !== false) {
+          if (is_array($value)) {
+            foreach ($value as $key2 => $value2) {
+              $param .= $value2.'": 1,"';
+            }
+            $param = substr($param, 0, -2);
+            $param .= '}';
+          }else {
+            $param .= $value.'": 1}';
+          }
+        }else {
+          $param = $value;
+        }
+        $data[$key] = $param;
+        $params[$cont] = $param;
 
-    $consulta = $this->mydb->prepare("insert into ".$tableName."(".$keys.") 
-          values (".$values.")");
-    //mandamos el insert con los parametros recibidos
-    return $consulta->execute($params) == true ? $this->mydb->lastInsertId() : 0;
+
+        $values .= "?,";
+        $cont += 1;
+
+      }
+      // var_dump($data);
+      $keys = substr($keys, 0, -1);
+      $values = substr($values, 0, -1);
+
+      $query = "insert into ".$tableName."(".$keys.") values (".$values.")";
+      $consulta = $this->mydb->prepare($query);
+      //mandamos el insert con los parametros recibidos
+      return $consulta->execute($params) == true ? $this->mydb->lastInsertId() : 0;
+    } catch (Exception $e) {
+        return json_encode(array('estado'=>false,'mensaje'=>$e->getMessage()));
+    }
+
+    // foreach ($data as $key => $value) {
+    //   $keys .= $key.",";
+    //   $params[$cont] = $value;
+    //   $values .= "?,";
+    //   $cont += 1;
+    // }
+    // $keys = substr($keys, 0, -1);
+    // $values = substr($values, 0, -1);
+
+    // $consulta = $this->mydb->prepare("insert into ".$tableName."(".$keys.") 
+    //       values (".$values.")");
+    // //mandamos el insert con los parametros recibidos
+    // return $consulta->execute($params) == true ? $this->mydb->lastInsertId() : 0;
   }
   public function put($tableName,$awhere,$data)
   {
