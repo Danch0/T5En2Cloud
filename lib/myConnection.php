@@ -160,12 +160,21 @@ class MyDB extends PDO
             $param = substr($param, 0, -2);
             $param .= '}';
           }else {
-            $param .= $value.'": 1}';
+            $newArray = explode(",",$value);
+            if (count($newArray !=0)) {
+              foreach ($newArray as $key2 => $value2) {
+                $param .= $value2.'": 1,"';
+              }
+              $param = substr($param, 0, -2);
+              $param .= '}';
+            }else
+              $param .= $value.'": 1}';
           }
         }else {
           $param = $value;
         }
-        $data[$key] = $param;
+        // var_dump($param);
+        // $data[$key] = $param;
         $params[$cont] = $param;
 
 
@@ -173,7 +182,7 @@ class MyDB extends PDO
         $cont += 1;
 
       }
-      // var_dump($data);
+      // var_dump($params);
       $keys = substr($keys, 0, -1);
       $values = substr($values, 0, -1);
 
