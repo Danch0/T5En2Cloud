@@ -180,7 +180,15 @@ class MyDB extends PDO
       $query = "insert into ".$tableName."(".$keys.") values (".$values.")";
       $consulta = $this->mydb->prepare($query);
       //mandamos el insert con los parametros recibidos
-      return $consulta->execute($params) == true ? $this->mydb->lastInsertId() : 0;
+      if($consulta->execute($params) == true) {
+        $newId = $this->mydb->lastInsertId();
+        if ($tableName == "paciente_ma") {
+          $newIdExp = $this->getRegistro("expediente_ma",array('id_paciente_paciente_ma' => $newId));
+          return array('newId' => $newId, 'newIdExp' => $newIdExp[0]['id_expediente']);
+        }
+        return $newId;
+      }else
+        return 0;
     } catch (Exception $e) {
         return json_encode(array('estado'=>false,'mensaje'=>$e->getMessage()));
     }

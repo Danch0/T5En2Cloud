@@ -33,9 +33,9 @@ class Paciente{
 			return json_encode(array('estado'=>false,'mensaje'=>'Los datos recibidos no corresponden a formato valido'));
 		};
 
-    $estado = $this->mydb->post('paciente_ma', $data);
-	  if ($estado != 0)
- 	    return json_encode(array('estado'=>true,'mensaje'=>'Datos insertados correctamente.','newId'=>$estado));
+    $response = $this->mydb->post('paciente_ma', $data);
+	  if (is_array($response))
+ 	    return json_encode(array('estado'=>true,'mensaje'=>'Datos insertados correctamente.','newId'=>$response['newId'],'newIdExp'=>$response['newIdExp']));
  		else
 			return json_encode(array('estado'=>false,'mensaje'=>'Error al insertar datos en la tabla.'));
 	}
