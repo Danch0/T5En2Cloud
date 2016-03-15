@@ -10,6 +10,8 @@ require __DIR__ . '/../lib/tipoMedia.php';
 require __DIR__ . '/../lib/ficha.php';
 require __DIR__ . '/../lib/endodoncia.php';
 require __DIR__ . '/../lib/endodonciaDiente.php';
+require __DIR__ . '/../lib/nota.php';
+require __DIR__ . '/../lib/media.php';
 $doctor = new Doctor();
 $especialidad = new Especialidad();
 $paciente = new Paciente();
@@ -20,6 +22,8 @@ $tipoMedia = new TipoMedia();
 $ficha = new Ficha();
 $endodoncia = new Endodoncia();
 $endodoncia_diente = new EndodonciaDiente();
+$nota = new Nota();
+$media = new Media();
 // Routes
 
 // Obtener todos los Registros
@@ -285,7 +289,6 @@ $app->delete('/endodoncia/{id}', function($req, $res, $args) use($endodoncia) {
 $app->put('/endodoncia/{id}', function($req, $res, $args) use($endodoncia) {
   echo $endodoncia->put($req, $args['id']);
 });
-
 // ###########################
 //          endodoncia_diente 
 // ###########################
@@ -310,4 +313,54 @@ $app->delete('/endodoncia-diente/{id}', function($req, $res, $args) use($endodon
 // Actualización de datos (PUT)
 $app->put('/endodoncia-diente/{id}', function($req, $res, $args) use($endodoncia_diente) {
   echo $endodoncia_diente->put($req, $args['id']);
+});
+// ###########################
+//          Notas 
+// ###########################
+// Obtener todos los Registros
+$app->get('/notas', function($req, $res, $args) use($nota) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($nota->get());
+});
+// Obtener registro por medio de su id
+$app->get('/nota/{id}', function($req, $res, $args) use($nota) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($nota->getRegistro($args['id']));
+});
+// Alta de un nuevo
+$app->post('/nota',function($req, $res, $args) use($nota) {
+  echo $nota->post($req);
+});
+// Programamos la ruta de borrado en la API REST (DELETE)
+$app->delete('/nota/{id}', function($req, $res, $args) use($nota) {
+  echo $nota->delete($args['id']);
+});
+// Actualización de datos (PUT)
+$app->put('/nota/{id}', function($req, $res, $args) use($nota) {
+  echo $nota->put($req, $args['id']);
+});
+// ###########################
+//           Media 
+// ###########################
+// Obtener todos los Registros
+$app->get('/medias', function($req, $res, $args) use($media) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($media->get());
+});
+// Obtener registro por medio de su id
+$app->get('/media/{id}', function($req, $res, $args) use($media) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($media->getRegistro($args['id']));
+});
+// Alta de un nuevo
+$app->post('/media',function($req, $res, $args) use($media) {
+  echo $media->post($req);
+});
+// Programamos la ruta de borrado en la API REST (DELETE)
+$app->delete('/media/{id}', function($req, $res, $args) use($media) {
+  echo $media->delete($args['id']);
+});
+// Actualización de datos (PUT)
+$app->put('/media/{id}', function($req, $res, $args) use($media) {
+  echo $media->put($req, $args['id']);
 });
