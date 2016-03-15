@@ -117,6 +117,15 @@ class MyDB extends PDO
     // Retornamos los resultados en un array asociativo.
     return $consulta->fetchAll(PDO::FETCH_ASSOC);
   }
+  // Ejecutamos query
+  public function getQuery($query)
+  {
+    
+    $consulta = $this->mydb->prepare($query);
+    $consulta->execute();
+    // Retornamos los resultados en un array asociativo.
+    return $consulta->fetchAll(PDO::FETCH_ASSOC);
+  }
   // Borrar registro especifico de tabla ?
   public function delete($tableName, $awhere)
   {

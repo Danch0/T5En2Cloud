@@ -19,6 +19,11 @@ class Nota{
     return $this->mydb->getRegistro('notas_ma',array('id_nota' => $id));
 	}
 
+	public function getRegistros($idFicha, $idDiente) {
+		//Manadamos llamar la funcion getRegistro('NombreTabla', where()) de la clase myDB()
+    return $this->mydb->getQuery('select * from notas_ma where id_ficha='.$idFicha.' AND id_diente='.$idDiente);
+	}
+
 	public function delete($id) {
 		$consulta = $this->mydb->delete('notas_ma',array('id_nota' => $id));
 	  if ($consulta == 1)

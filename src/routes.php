@@ -327,6 +327,11 @@ $app->get('/nota/{id}', function($req, $res, $args) use($nota) {
   // Devolvemos un array asociativo como un string JSON.
   echo json_encode($nota->getRegistro($args['id']));
 });
+// Obtener registro por medio de su id
+$app->get('/nota/{idFicha}/{idDiente}', function($req, $res, $args) use($nota) {
+  // Devolvemos un array asociativo como un string JSON.
+  echo json_encode($nota->getRegistros($args['idFicha'],$args['idDiente']));
+});
 // Alta de un nuevo
 $app->post('/nota',function($req, $res, $args) use($nota) {
   echo $nota->post($req);
