@@ -6,57 +6,30 @@ define('BD_SERVIDOR', 'localhost');
 define('BD_NOMBRE', '2cloud');
 define('BD_USUARIO', 'root');
 define('BD_PASSWORD', 'T00R123');
-
-// class MyDB
-// {
-// 	// const HOST = "201.144.121.132";
-// 	// const USER = "czamudio";	
-// 	// const PASS = "kiosco";
-// 	// const DB = "registroSanLuis";
-// 	private $mydb;
-	
-// 	public function Open($image = false){
-// 		$this->mydb = new PDO('mysql:host=' . BD_SERVIDOR . ';dbname=' . BD_NOMBRE . ';charset=utf8', BD_USUARIO, BD_PASSWORD);
-// 		$this->mydb->exec("set names utf8");
-// 	}
-
-// 	public function Query($sql){
-//         logSW("entro al query");
-// 		$query = $this->mydb->query($sql);
-// 		// if ($resultado = mysqli_fetch_array($query, MYSQLI_ASSOC)) {
-// 		//   die('Consulta no válida: ' . $this->mysqli->error);
-// 		// }
-//         $response = $query->fetch_array();
-//         $query->free();
-// 		return $response;
-// 	}
-
-// 	public function Close(){
-// 		$this->mydb->close();
-// 	}
-// }
-
-//$db = new PDO('mysql:host=' . BD_SERVIDOR . ';dbname=' . BD_NOMBRE . ';charset=utf8', BD_USUARIO, BD_PASSWORD);
-//$db->exec("set names utf8");
-
 /**
 * 
 */
 class MyDB extends PDO
 {
-	public $mydb;
+	private $mydb;
+  private $deletLogic;
 
-	// public function __construct(){
-	//   $dns = 'mysql'.':dbname='.BD_NOMBRE.";host=".BD_SERVIDOR; 
-	//   parent::__construct( $dns, BD_USUARIO, BD_PASSWORD ); 
-	// }
 	public function __construct()
   {
-  	//global $db;
+  	$this->deletLogic = array('doctor_ma' => true, 'paciente_ma' => true, 'ficha_ma' => true );
+    
 		$this->mydb = new PDO('mysql:host=' . BD_SERVIDOR . ';dbname=' . BD_NOMBRE . ';charset=utf8', BD_USUARIO, BD_PASSWORD);
 		$this->mydb->exec("set names utf8");
 		$dns = 'mysql'.':dbname='.BD_NOMBRE.";host=".BD_SERVIDOR; 
 	  parent::__construct( $dns, BD_USUARIO, BD_PASSWORD ); 
+  }
+  //conprueba si la tabla es de borrado logico isdeletLogic('tableName')
+  private function isdeletLogic($tableName = '') {
+    $consulta = $this->mydb->prepare("select * from ".$tableName." limit 1");
+    $consulta->execute();
+    $result = ($consulta->fetchAll(PDO::FETCH_ASSOC));
+    // var_dump($result[0]);
+    return array_key_exists("deleted_bool", $result[0]);
   }
   //Obtener usuarios
   public function getUsuarios($limit = 0)
@@ -81,62 +54,87 @@ class MyDB extends PDO
   //Obtener registros de una tabla
   public function getAll($tableName, $limit = 0)
   {
-    $limit = $limit != 0 ? string($limit) : "1000";
-  	$consulta = $this->mydb->prepare("select * from ".$tableName." limit ".$limit);
-		$consulta->execute();
-    // Retornamos los resultados en un array asociativo.
-    $result = ($consulta->fetchAll(PDO::FETCH_ASSOC));
-    // var_dump($result);
-    // $json = '{"a":"Hola","b":"Mundo","c":3,"d":4,"e":5}';
-    // $json = '';
     try {
-      foreach ($result as $key => $value) {
+      $limit = $limit != 0 ? string($limit) : "1000";
+      if ($this->isdeletLogic($tableName)) {
+        $consulta = $this->mydb->prepare("select * from ".$tableName." where deleted_bool <> 1 OR isnull(deleted_bool) limit ".$limit);
+      }else
+        $consulta = $this->mydb->prepare("select * from ".$tableName." limit ".$limit);
+  		$consulta->execute();
+      // Retornamos los resultados en un array asociativo.
+      $result = ($consulta->fetchAll(PDO::FETCH_ASSOC));
+      return $this->parseJsonToArray($result);
+    } catch (PDOException $e) {
+      return array('estado'=>false,'mensaje'=>$e->getMessage());
+    }
+  }
+  //Convierte en array los campo json obtenidos de la BD
+  private function parseJsonToArray($data='')
+  {
+    $dataParse = $data;
+    try {
+      foreach ($data as $key => $value) {
         foreach ($value as $key2 => $value2) {
           if(is_array(json_decode($value2,true))){
-            $result[$key][$key2] = json_decode($value2,true);
+            $dataParse[$key][$key2] = json_decode($value2,true);
           }
         }
       }
-      return $result;
-        // return(json_decode($json));
+      return $dataParse;
     } catch (Exception $e) {
-        return json_encode(array('estado'=>false,'mensaje'=>$e->getMessage()));
+        return array('estado'=>false,'mensaje'=>$e->getMessage());
     }
-    // var_dump(json_decode($json, true));
-  }
+  } 
   // Obtener registro especifico de tabla ?
   public function getRegistro($tableName, $awhere)
   {
-    $where = "";
-    foreach ($awhere as $key => $value) {
-      $where .= $key."='".$value."' "; 
+    try {
+      $where = "";
+      foreach ($awhere as $key => $value) {
+        $where .= $key."='".$value."' "; 
+      }
+      // var_dump("select * from ".$tableName." where ".$where);
+    	$consulta = $this->mydb->prepare("select * from ".$tableName." where ".$where);
+      $consulta->execute();
+      // Retornamos los resultados en un array asociativo.
+      $result = $consulta->fetchAll(PDO::FETCH_ASSOC);
+      return $this->parseJsonToArray($result);
+    } catch (PDOException $e) {
+      return array('estado'=>false,'mensaje'=>$e->getMessage());
     }
-    // var_dump("select * from ".$tableName." where ".$where);
-  	$consulta = $this->mydb->prepare("select * from ".$tableName." where ".$where);
-    $consulta->execute();
-    // Retornamos los resultados en un array asociativo.
-    return $consulta->fetchAll(PDO::FETCH_ASSOC);
   }
   // Ejecutamos query
   public function getQuery($query)
   {
-    
-    $consulta = $this->mydb->prepare($query);
-    $consulta->execute();
-    // Retornamos los resultados en un array asociativo.
-    return $consulta->fetchAll(PDO::FETCH_ASSOC);
+    try {
+      $consulta = $this->mydb->prepare($query);
+      $consulta->execute();
+      $result = $consulta->fetchAll(PDO::FETCH_ASSOC);
+      return $this->parseJsonToArray($result);
+    } catch (PDOException $e) {
+      return array('estado'=>false,'mensaje'=>$e->getMessage());
+    }
   }
   // Borrar registro especifico de tabla ?
   public function delete($tableName, $awhere)
   {
-    $where = "";
-    foreach ($awhere as $key => $value) {
-      $where .= $key."=".$value." "; 
+    try {
+      // return array('estado'=>true,'mensaje'=>$this->isdeletLogic($tableName));
+      $where = "";
+      foreach ($awhere as $key => $value) {
+        $where .= $key."=".$value." "; 
+      }
+      if ($this->isdeletLogic($tableName)) {
+        $consulta = $this->mydb->prepare("update ".$tableName." set deleted_bool=1 where ".$where);
+      }else
+        $consulta = $this->mydb->prepare("delete from ".$tableName." where ".$where);
+      $consulta->execute();
+      // Retornamos los resultados en un array asociativo.
+      return $consulta->rowCount();
+    } catch (PDOException $e) {
+      return json_encode(array('estado'=>false,'mensaje'=>$e->getMessage()));
     }
-    $consulta = $this->mydb->prepare("delete from ".$tableName." where ".$where);
-    $consulta->execute();
-    // Retornamos los resultados en un array asociativo.
-    return $consulta->rowCount();
+
   }
   public function login($tableName, $awhere)
   {
@@ -152,6 +150,72 @@ class MyDB extends PDO
   }
   public function post($tableName,$data)
   {
+    // $keys= "";$values= "";
+    // $params = array();
+    // $cont = 0;
+
+    // // $data['id_endodoncia_endodoncia_ma'] = 1;
+    // try {
+    //   foreach ($data as $key => $value) {
+    //     $keys .= $key.",";
+    //     $param = '{"';
+    //     if (strpos($key, 'json') !== false) {
+    //       if (is_array($value)) {
+    //         foreach ($value as $key2 => $value2) {
+    //           $param .= $value2.'": 1,"';
+    //         }
+    //         $param = substr($param, 0, -2);
+    //         $param .= '}';
+    //       }else {
+    //         $newArray = explode(",",$value);
+    //         if (count($newArray !=0)) {
+    //           foreach ($newArray as $key2 => $value2) {
+    //             $param .= $value2.'": 1,"';
+    //           }
+    //           $param = substr($param, 0, -2);
+    //           $param .= '}';
+    //         }else
+    //           $param .= $value.'": 1}';
+    //       }
+    //     }else {
+    //       $param = $value;
+    //     }
+    //     // var_dump($param);
+    //     // $data[$key] = $param;
+    //     $params[$cont] = $param;
+
+
+    //     $values .= "?,";
+    //     $cont += 1;
+
+    //   }
+    //   // var_dump($params);
+    //   $keys = substr($keys, 0, -1);
+    //   $values = substr($values, 0, -1);
+    try {
+      $myParse = $this->parseArrayToJsonQuery($data, "POST");
+      if ($myParse['estado']) {
+        $query = "insert into ".$tableName."(".$myParse['keys'].") values (".$myParse['values'].")";
+        $consulta = $this->mydb->prepare($query);
+        //mandamos el insert con los parametros recibidos
+        if($consulta->execute($myParse['params']) == true) {
+          $newId = $this->mydb->lastInsertId();
+          if ($tableName == "paciente_ma") {
+            $newIdExp = $this->getRegistro("expediente_ma",array('id_paciente_paciente_ma' => $newId));
+            return array('newId' => $newId, 'newIdExp' => $newIdExp[0]['id_expediente']);
+          }
+          return $newId;
+        }else
+          return 0;
+      }else
+        return json_encode(array('estado'=>false,'mensaje'=>$myParse['mensaje']));
+    } catch (PDOException $e) {
+        return json_encode(array('estado'=>false,'mensaje'=>$e->getMessage()));
+    }
+  }
+  //Convierte en array los campo json obtenidos de la BD
+  private function parseArrayToJsonQuery($data='', $method)
+  {
     $keys= "";$values= "";
     $params = array();
     $cont = 0;
@@ -159,7 +223,7 @@ class MyDB extends PDO
     // $data['id_endodoncia_endodoncia_ma'] = 1;
     try {
       foreach ($data as $key => $value) {
-        $keys .= $key.",";
+        $keys .= $method == "POST" ? $key.",":$key."=?,";
         $param = '{"';
         if (strpos($key, 'json') !== false) {
           if (is_array($value)) {
@@ -195,60 +259,50 @@ class MyDB extends PDO
       $keys = substr($keys, 0, -1);
       $values = substr($values, 0, -1);
 
-      $query = "insert into ".$tableName."(".$keys.") values (".$values.")";
-      $consulta = $this->mydb->prepare($query);
-      //mandamos el insert con los parametros recibidos
-      if($consulta->execute($params) == true) {
-        $newId = $this->mydb->lastInsertId();
-        if ($tableName == "paciente_ma") {
-          $newIdExp = $this->getRegistro("expediente_ma",array('id_paciente_paciente_ma' => $newId));
-          return array('newId' => $newId, 'newIdExp' => $newIdExp[0]['id_expediente']);
-        }
-        return $newId;
-      }else
-        return 0;
+      return array('params' => $params, 'keys' => $keys, 'values' => $values, 'estado'=>true,'mensaje'=>"ok");
     } catch (Exception $e) {
-        return json_encode(array('estado'=>false,'mensaje'=>$e->getMessage()));
+        return array('estado'=>false,'mensaje'=>$e->getMessage());
     }
+  } 
+  public function put($tableName,$awhere,$data)
+  {
+    // $keys= "";
+    // $params = array();
+    // $cont = 0;
+    // $where = "";
 
     // foreach ($data as $key => $value) {
-    //   $keys .= $key.",";
+    //   $keys .= $key."=?,";
     //   $params[$cont] = $value;
-    //   $values .= "?,";
     //   $cont += 1;
     // }
     // $keys = substr($keys, 0, -1);
-    // $values = substr($values, 0, -1);
 
-    // $consulta = $this->mydb->prepare("insert into ".$tableName."(".$keys.") 
-    //       values (".$values.")");
-    // //mandamos el insert con los parametros recibidos
-    // return $consulta->execute($params) == true ? $this->mydb->lastInsertId() : 0;
-  }
-  public function put($tableName,$awhere,$data)
-  {
-    $keys= "";
-    $params = array();
-    $cont = 0;
-    $where = "";
-
-    foreach ($data as $key => $value) {
-      $keys .= $key."=?,";
-      $params[$cont] = $value;
-      $cont += 1;
+    try {
+      $myParse = $this->parseArrayToJsonQuery($data, "PUT");
+      if ($myParse['estado']) {
+        $where = "";
+        foreach ($awhere as $key => $value) {
+          $where .= $key."=".$value." "; 
+        }
+        $query = "update ".$tableName." set ".$myParse['keys']." where ".$where;
+        // var_dump($query);
+        // var_dump($params);
+        $consulta = $this->mydb->prepare($query);
+        //mandamos el insert con los parametros recibidos
+        $consulta->execute($myParse['params']);
+        return $consulta->rowCount();
+        // if ($consulta->rowCount() != 0)
+        //    return json_encode(array('estado'=>true,'mensaje'=>'Datos actualizados correctamente.'));
+        // else
+        //    return json_encode(array('estado'=>false,'mensaje'=>'Error al actualizar datos en la tabla.'));
+      }else
+        return json_encode(array('estado'=>false,'mensaje'=>$myParse['mensaje']));
+    } catch (PDOException $e) {
+        return json_encode(array('estado'=>false,'mensaje'=>$e->getMessage()));
     }
-    $keys = substr($keys, 0, -1);
 
-    foreach ($awhere as $key => $value) {
-      $where .= $key."=".$value." "; 
-    }
-    $query = "update ".$tableName." set ".$keys." where ".$where;
-    // var_dump($query);
-    // var_dump($params);
-    $consulta = $this->mydb->prepare($query);
-    //mandamos el insert con los parametros recibidos
-    $consulta->execute($params);
-    return $consulta->rowCount();
+    
   }
 }
 

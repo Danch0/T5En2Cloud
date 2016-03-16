@@ -80,7 +80,7 @@ $app->post('/doctor',function($req, $res, $args) use($doctor) {
   //    echo json_encode(array('estado'=>true,'mensaje'=>'Datos insertados correctamente.','newId'=>$estado));
   // else
   //    echo json_encode(array('estado'=>false,'mensaje'=>'Error al insertar datos en la tabla.'));
-  echo $estado = $doctor->post($req);
+  echo $doctor->post($req);
 });
 // Programamos la ruta de borrado en la API REST (DELETE)
 $app->delete('/doctor/{id}', function($req, $res, $args) use($doctor)

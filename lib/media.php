@@ -34,11 +34,13 @@ class Media{
 			return json_encode(array('estado'=>false,'mensaje'=>'Los datos recibidos no corresponden a formato valido'));
 		};
 
-    $estado = $this->mydb->post('media_ma', $data);
-	  if ($estado != 0)
- 	    return json_encode(array('estado'=>true,'mensaje'=>'Datos insertados correctamente.','newId'=>$estado));
- 		else
-			return json_encode(array('estado'=>false,'mensaje'=>'Error al insertar datos en la tabla.'));
+		// var_dump($data);
+
+   //  $estado = $this->mydb->post('media_ma', $data);
+	  // if ($estado != 0)
+ 	 //    return json_encode(array('estado'=>true,'mensaje'=>'Datos insertados correctamente.','newId'=>$estado));
+ 		// else
+			// return json_encode(array('estado'=>false,'mensaje'=>'Error al insertar datos en la tabla.'));
 	}
 
 	public function put($req, $id) {

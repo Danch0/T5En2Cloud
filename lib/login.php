@@ -21,9 +21,9 @@ class Login{
     $registro = $this->mydb->getRegistro('usuario_ma',array('username_txt' => $data['username_txt']));
     // var_dump($registro);activo_bol
     if(count($registro) != 1)
-    	echo json_encode(array('estado'=>FALSE,'mensaje'=>'ERROR: registro no se ha encontrado en la tabla.'));
+    	return json_encode(array('estado'=>FALSE,'mensaje'=>'ERROR: registro no se ha encontrado en la tabla.'));
     if (hash_equals($registro[0]["password_txt"], crypt($data["password_txt"], ".TRU350LUT10N5}")))
-    	echo json_encode(array('estado'=>TRUE,'activo_bol'=>$registro[0]["activo_bol"],'id_rol_rol_cat'=>$registro[0]["id_rol_rol_cat"]));
+    	return json_encode(array('estado'=>TRUE,'activo_bol'=>$registro[0]["activo_bol"],'id_rol_rol_cat'=>$registro[0]["id_rol_rol_cat"]));
 	}
 
 }
