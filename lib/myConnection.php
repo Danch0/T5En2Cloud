@@ -29,7 +29,10 @@ class MyDB extends PDO
     $consulta->execute();
     $result = ($consulta->fetchAll(PDO::FETCH_ASSOC));
     // var_dump($result[0]);
-    return array_key_exists("deleted_bool", $result[0]);
+    if (count($result) != 1)
+      return false;
+    else 
+      return array_key_exists("deleted_bool", $result[0]);
   }
   //Obtener usuarios
   public function getUsuarios($limit = 0)
