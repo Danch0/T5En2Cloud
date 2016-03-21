@@ -298,9 +298,9 @@ $app->get('/endodoncias-dientes', function($req, $res, $args) use($endodoncia_di
   echo json_encode($endodoncia_diente->get());
 });
 // Obtener registro por medio de su id
-$app->get('/endodoncia-diente/{id}', function($req, $res, $args) use($endodoncia_diente) {
+$app->get('/endodoncia-diente/{id}[/{filter}]', function($req, $res, $args) use($endodoncia_diente) {
   // Devolvemos un array asociativo como un string JSON.
-  echo json_encode($endodoncia_diente->getRegistro($args['id']));
+  echo json_encode($endodoncia_diente->getRegistro($args['id'],array_key_exists('filter', $args)? $args['filter']:""));
 });
 // Alta de un nuevo
 $app->post('/endodoncia-diente',function($req, $res, $args) use($endodoncia_diente) {

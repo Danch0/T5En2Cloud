@@ -11,12 +11,13 @@ class EndodonciaDiente{
 	public function get() {
 		//Manadamos llamar la funcion getAll('NombreTabla') de la clase myDB()
     // return $this->mydb->getAll('endodoncia_diente_det');
-    return $this->mydb->getAll('endodoncia_diente_det');
+    return $this->mydb->getAll('vw_endodoncia_det');
 	}
 
-	public function getRegistro($id) {
+	public function getRegistro($id = 0, $filter = "") {
 		//Manadamos llamar la funcion getRegistro('NombreTabla', array('id_tabla' => $id)) de la clase myDB()
-    return $this->mydb->getRegistro('endodoncia_diente_det',array('id' => $id));
+		$where = $filter != ""? $filter:'id';
+    return $this->mydb->getRegistro('vw_endodoncia_det',array($where => $id));
 	}
 
 	public function delete($id) {

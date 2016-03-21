@@ -198,6 +198,7 @@ class MyDB extends PDO
     try {
       $myParse = $this->parseArrayToJsonQuery($data, "POST");
       if ($myParse['estado']) {
+        // var_dump($myParse['params']);
         $query = "insert into ".$tableName."(".$myParse['keys'].") values (".$myParse['values'].")";
         $consulta = $this->mydb->prepare($query);
         //mandamos el insert con los parametros recibidos
@@ -207,9 +208,10 @@ class MyDB extends PDO
             $newIdExp = $this->getRegistro("expediente_ma",array('id_paciente_paciente_ma' => $newId));
             return array('newId' => $newId, 'newIdExp' => $newIdExp[0]['id_expediente']);
           }
-          return $newId;
+        return $newId;
         }else
           return 0;
+        // return 1;
       }else
         return json_encode(array('estado'=>false,'mensaje'=>$myParse['mensaje']));
     } catch (PDOException $e) {
@@ -222,6 +224,7 @@ class MyDB extends PDO
     $keys= "";$values= "";
     $params = array();
     $cont = 0;
+    $isKey = true;
 
     // $data['id_endodoncia_endodoncia_ma'] = 1;
     try {
@@ -229,23 +232,38 @@ class MyDB extends PDO
         $keys .= $method == "POST" ? $key.",":$key."=?,";
         $param = '{"';
         if (strpos($key, 'json') !== false) {
-          if (is_array($value)) {
-            foreach ($value as $key2 => $value2) {
-              $param .= $value2.'": 1,"';
+          // if (is_array($value)) {
+          //   foreach ($value as $key2 => $value2) {
+          //     $param .= $value2.'": 1,"';
+          //   }
+          //   $param = substr($param, 0, -2);
+          //   $param .= '}';
+          // }else {
+          //   $newArray = explode(",",$value);
+          //   if (count($newArray !=0)) {
+          //     foreach ($newArray as $key2 => $value2) {
+          //       $param .= $value2.'": 1,"';
+          //     }
+          //     $param = substr($param, 0, -2);
+          //     $param .= '}';
+          //   }else
+          //     $param .= $value.'": 1}';
+          // }
+          $explodeArray = explode(",",$value);
+          $newArray = array();
+          $oldKey = "";
+          foreach ($explodeArray as $key => $value) {
+            $value = trim($value);
+            if ($isKey) {
+              $oldKey = $value;
+              $newArray[$value] = "";
+              $isKey = false;
+            }else {
+              $newArray[$oldKey] = $value;
+              $isKey = true;
             }
-            $param = substr($param, 0, -2);
-            $param .= '}';
-          }else {
-            $newArray = explode(",",$value);
-            if (count($newArray !=0)) {
-              foreach ($newArray as $key2 => $value2) {
-                $param .= $value2.'": 1,"';
-              }
-              $param = substr($param, 0, -2);
-              $param .= '}';
-            }else
-              $param .= $value.'": 1}';
           }
+          $param = json_encode($newArray);
         }else {
           $param = $value;
         }
