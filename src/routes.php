@@ -1,17 +1,17 @@
 <?php
-require __DIR__ . '/../lib/myConnection.php';
-require __DIR__ . '/../lib/doctor.php';
-require __DIR__ . '/../lib/especialidad.php';
-require __DIR__ . '/../lib/paciente.php';
-require __DIR__ . '/../lib/login.php';
-require __DIR__ . '/../lib/usuario.php';
-require __DIR__ . '/../lib/rol.php';
-require __DIR__ . '/../lib/tipoMedia.php';
-require __DIR__ . '/../lib/ficha.php';
-require __DIR__ . '/../lib/endodoncia.php';
-require __DIR__ . '/../lib/endodonciaDiente.php';
-require __DIR__ . '/../lib/nota.php';
-require __DIR__ . '/../lib/media.php';
+// require __DIR__ . '/../lib/myConnection.php';
+// require __DIR__ . '/../lib/doctor.php';
+// require __DIR__ . '/../lib/especialidad.php';
+// require __DIR__ . '/../lib/paciente.php';
+// require __DIR__ . '/../lib/login.php';
+// require __DIR__ . '/../lib/usuario.php';
+// require __DIR__ . '/../lib/rol.php';
+// require __DIR__ . '/../lib/tipoMedia.php';
+// require __DIR__ . '/../lib/ficha.php';
+// require __DIR__ . '/../lib/endodoncia.php';
+// require __DIR__ . '/../lib/endodonciaDiente.php';
+// require __DIR__ . '/../lib/nota.php';
+// require __DIR__ . '/../lib/media.php';
 $doctor = new Doctor();
 $especialidad = new Especialidad();
 $paciente = new Paciente();
@@ -19,7 +19,7 @@ $login = new Login();
 $usuario = new Usuario();
 $rol = new Rol();
 $tipoMedia = new TipoMedia();
-$ficha = new Ficha();
+// $ficha = new Ficha();
 $endodoncia = new Endodoncia();
 $endodoncia_diente = new EndodonciaDiente();
 $nota = new Nota();
@@ -242,25 +242,31 @@ $app->put('/tipo-media/{id}', function($req, $res, $args) use($tipoMedia) {
 //          ficha 
 // ###########################
 // Obtener todos los Registros
-$app->get('/fichas', function($req, $res, $args) use($ficha) {
+$app->get('/fichas', function($req, $res, $args) {
   // Devolvemos un array asociativo como un string JSON.
-  echo json_encode($ficha->get());
+  // echo json_encode($ficha->get());
+  $this->logger->addInfo("Fichas list");
+  $mapper = new Ficha($this->db);
+  $fichas = $mapper->get();
+
+  // $response->getBody()->write(var_export($fichas, true));
+  return json_encode($fichas);
 });
 // Obtener registro por medio de su id
-$app->get('/ficha/{id}', function($req, $res, $args) use($ficha) {
+$app->get('/ficha/{id}', function($req, $res, $args) {
   // Devolvemos un array asociativo como un string JSON.
   echo json_encode($ficha->getRegistro($args['id']));
 });
 // Alta de un nuevo
-$app->post('/ficha',function($req, $res, $args) use($ficha) {
+$app->post('/ficha',function($req, $res, $args) {
   echo $ficha->post($req);
 });
 // Programamos la ruta de borrado en la API REST (DELETE)
-$app->delete('/ficha/{id}', function($req, $res, $args) use($ficha) {
+$app->delete('/ficha/{id}', function($req, $res, $args) {
   echo $ficha->delete($args['id']);
 });
 // Actualización de datos (PUT)
-$app->put('/ficha/{id}', function($req, $res, $args) use($ficha) {
+$app->put('/ficha/{id}', function($req, $res, $args) {
   echo $ficha->put($req, $args['id']);
 });
 

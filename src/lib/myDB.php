@@ -14,14 +14,16 @@ class MyDB extends PDO
 	private $mydb;
   private $deletLogic;
 
-	public function __construct()
+	public function __construct($conection)
   {
-  	$this->deletLogic = array('doctor_ma' => true, 'paciente_ma' => true, 'ficha_ma' => true );
+  // 	$this->deletLogic = array('doctor_ma' => true, 'paciente_ma' => true, 'ficha_ma' => true );
     
-		$this->mydb = new PDO('mysql:host=' . BD_SERVIDOR . ';dbname=' . BD_NOMBRE . ';charset=utf8', BD_USUARIO, BD_PASSWORD);
-		$this->mydb->exec("set names utf8");
-		$dns = 'mysql'.':dbname='.BD_NOMBRE.";host=".BD_SERVIDOR; 
-	  parent::__construct( $dns, BD_USUARIO, BD_PASSWORD ); 
+		// $this->mydb = new PDO('mysql:host=' . BD_SERVIDOR . ';dbname=' . BD_NOMBRE . ';charset=utf8', BD_USUARIO, BD_PASSWORD);
+		// $this->mydb->exec("set names utf8");
+		// $dns = 'mysql'.':dbname='.BD_NOMBRE.";host=".BD_SERVIDOR; 
+	 //  parent::__construct( $dns, BD_USUARIO, BD_PASSWORD );
+    $this->mydb = $conection;
+    // parent::__construct($conection);
   }
   //conprueba si la tabla es de borrado logico isdeletLogic('tableName')
   private function isdeletLogic($tableName = '') {

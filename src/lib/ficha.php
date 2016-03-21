@@ -3,9 +3,9 @@
 class Ficha{
 	protected $mydb;
 
-	public function __construct() {
-  	global $db;
-		$this->mydb = $db;
+	public function __construct($conection) {
+  	// global $db;
+		$this->mydb = new MyDB($conection);
   }
 
 	public function get() {

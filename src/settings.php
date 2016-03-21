@@ -13,5 +13,13 @@ return [
             'name' => 'slim-app',
             'path' => __DIR__ . '/../logs/app.log',
         ],
+
+        // PDO setting for mySQL
+        'db' => [
+            'host' => "localhost",
+            'user' => "root",
+            'pass' => "T00R123",
+            'dbname' => "2cloud"
+        ],
     ],
 ];
