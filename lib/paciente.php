@@ -19,7 +19,7 @@ class Paciente{
 	}
 
 	public function delete($id) {
-		$consulta = $this->mydb->delete('vw_pacientes_det',array('id_paciente' => $id));
+		$consulta = $this->mydb->delete('paciente_ma',array('id_paciente' => $id));
 	  if ($consulta == 1)
 			return json_encode(array('estado'=>true,'mensaje'=>'El registro con id:'.$id.' ha sido borrado correctamente.'));
 		else
@@ -33,7 +33,7 @@ class Paciente{
 			return json_encode(array('estado'=>false,'mensaje'=>'Los datos recibidos no corresponden a formato valido'));
 		};
 
-    $response = $this->mydb->post('vw_pacientes_det', $data);
+    $response = $this->mydb->post('paciente_ma', $data);
 	  if (is_array($response))
  	    return json_encode(array('estado'=>true,'mensaje'=>'Datos insertados correctamente.','newId'=>$response['newId'],'newIdExp'=>$response['newIdExp']));
  		else
@@ -45,7 +45,7 @@ class Paciente{
 		if (is_null($data))
 			return json_encode(array('estado'=>false,'mensaje'=>'Los datos recibidos no corresponden a formato json'));
 	  
-		$estado = $this->mydb->put('vw_pacientes_det',array('id_paciente'=>$id), $data);
+		$estado = $this->mydb->put('paciente_ma',array('id_paciente'=>$id), $data);
 	  if ($estado != 0)
 	     return json_encode(array('estado'=>true,'mensaje'=>'Datos actualizados correctamente.'));
 	  else
