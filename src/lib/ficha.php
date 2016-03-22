@@ -1,11 +1,12 @@
 <?php
 
-class Ficha{
+class Ficha extends MyDB{
 	protected $mydb;
+	protected $pdo;
 
 	public function __construct($conection) {
   	// global $db;
-		$this->mydb = new MyDB($conection);
+		$this->pdo = $conection;
   }
 
 	public function get() {
