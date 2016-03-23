@@ -2,27 +2,31 @@
 class MyPDO
 {
   protected $tableName = "";
-  protected $tableId = "";
+  protected $tableGet = "";
   protected $deleteLogic = false;
   protected $pdo = null;
 
-  public function __construct($tableName,$tableId,$pdo) {
+  public function __construct($tableName,$tableGet,$pdo) {
     $this->tableName = $tableName;
-    $this->tableId = $tableId;
+    $this->tableGet = $tableGet;
     $this->pdo = $pdo;
     self::isdeleteLogic();
   }
 
   //conprueba si la tabla es de borrado logico
   public function isdeleteLogic() {
-    $consulta = $this->pdo->prepare("select * from ".$this->tableName." limit 1");
-    $consulta->execute();
-    $result = ($consulta->fetchAll(PDO::FETCH_ASSOC));
-    // var_dump($result[0]);
-    if (count($result) != 1)
-      $this->deleteLogic = false;
-    else 
-      $this->deleteLogic = array_key_exists("deleted_bool", $result[0]);
+    try{
+      $consulta = $this->pdo->prepare("select * from ".$this->tableName." limit 1");
+      $consulta->execute();
+      $result = ($consulta->fetchAll(PDO::FETCH_ASSOC));
+      // var_dump($result[0]);
+      if (count($result) != 1)
+        $this->deleteLogic = false;
+      else 
+        $this->deleteLogic = array_key_exists("deleted_bool", $result[0]);
+    } catch (PDOException $e) {
+      return array('estado'=>false,'mensaje'=>$e->getMessage());
+    }
   }
   //Obtener registros de una tabla
   public function getAll($limit = 0)
@@ -30,9 +34,9 @@ class MyPDO
     try {
       $limit = $limit != 0 ? string($limit) : "1000";
       if ($this->deleteLogic) {
-        $consulta = $this->pdo->prepare("select * from ".$this->tableName." where deleted_bool <> 1 OR isnull(deleted_bool) limit ".$limit);
+        $consulta = $this->pdo->prepare("select * from ".$this->tableGet." where deleted_bool <> 1 OR isnull(deleted_bool) limit ".$limit);
       }else
-        $consulta = $this->pdo->prepare("select * from ".$this->tableName." limit ".$limit);
+        $consulta = $this->pdo->prepare("select * from ".$this->tableGet." limit ".$limit);
   		$consulta->execute();
       // Retornamos los resultados en un array asociativo.
       $result = ($consulta->fetchAll(PDO::FETCH_ASSOC));
@@ -59,7 +63,7 @@ class MyPDO
     }
   } 
   // Obtener registro especifico de tabla ?
-  public function getRegistro($awhere)
+  public function getRegistro($awhere = array())
   {
     try {
       $where = "";
@@ -67,13 +71,15 @@ class MyPDO
         $where .= $key."='".$value."' "; 
       }
       // var_dump("select * from ".$tableName." where ".$where);
-    	$consulta = $this->pdo->prepare("select * from ".$this->tableName." where ".$where);
+    	$consulta = $this->pdo->prepare("select * from ".$this->tableGet." where ".$where);
       $consulta->execute();
       // Retornamos los resultados en un array asociativo.
       $result = $consulta->fetchAll(PDO::FETCH_ASSOC);
       return array('estado'=>true,'mensaje'=>"ok", 'result'=> $this->parseJsonToArray($result));
     } catch (PDOException $e) {
       return array('estado'=>false,'mensaje'=>$e->getMessage());
+    } catch (Exception $e2){
+      return array('estado'=>false,'mensaje'=>$e2->getMessage());
     }
   }
   // Ejecutamos query
@@ -83,29 +89,34 @@ class MyPDO
       $consulta = $this->pdo->prepare($query);
       $consulta->execute();
       $result = $consulta->fetchAll(PDO::FETCH_ASSOC);
-      return $this->parseJsonToArray($result);
+      return array('estado'=>true,'mensaje'=>"ok", 'result'=> $this->parseJsonToArray($result));
     } catch (PDOException $e) {
       return array('estado'=>false,'mensaje'=>$e->getMessage());
     }
   }
   // Borrar registro especifico de tabla ?
-  public function delete($tableName, $awhere)
+  public function delete($awhere)
   {
     try {
       // return array('estado'=>true,'mensaje'=>$this->isdeletLogic($tableName));
       $where = "";
+      $fileDelete = null;
       foreach ($awhere as $key => $value) {
-        $where .= $key."=".$value." "; 
+        $where .= $key."=".$value." ";
+        $fileDelete = $value;
       }
-      if ($this->isdeletLogic($tableName)) {
-        $consulta = $this->pdo->prepare("update ".$tableName." set deleted_bool=1 where ".$where);
+      if ($this->deleteLogic) {
+        $consulta = $this->pdo->prepare("update ".$this->tableName." set deleted_bool=1 where ".$where);
       }else
-        $consulta = $this->pdo->prepare("delete from ".$tableName." where ".$where);
+        $consulta = $this->pdo->prepare("delete from ".$this->tableName." where ".$where);
       $consulta->execute();
       // Retornamos los resultados en un array asociativo.
-      return $consulta->rowCount();
+      if($consulta->rowCount() == 1)
+        return array('estado'=>true,'mensaje'=>'Registro con id:'.$fileDelete.' borrado correctamente.', 'result'=>array('estado'=>true,'mensaje'=>'Registro con id:'.$fileDelete.' borrado correctamente.'));
+      else
+        return array('estado'=>false,'mensaje'=>'Registro en la tabla no encontrado.');
     } catch (PDOException $e) {
-      return json_encode(array('estado'=>false,'mensaje'=>$e->getMessage()));
+      return array('estado'=>false,'mensaje'=>$e->getMessage());
     }
 
   }
@@ -135,36 +146,35 @@ class MyPDO
         return array('estado'=>false,'mensaje'=>$e->getMessage());
     }
   }
-  //Convierte en array los campo json obtenidos de la BD
+  //Convierte en json los campos recibidos
   private function parseArrayToJsonQuery($data='', $method)
   {
     $keys= "";$values= "";
     $params = array();
     $cont = 0;
+    $isKey = true;
 
-    // $data['id_endodoncia_endodoncia_ma'] = 1;
     try {
       foreach ($data as $key => $value) {
         $keys .= $method == "POST" ? $key.",":$key."=?,";
+        $value = filter_var($value, FILTER_SANITIZE_STRING);
         $param = '{"';
         if (strpos($key, 'json') !== false) {
-          if (is_array($value)) {
-            foreach ($value as $key2 => $value2) {
-              $param .= $value2.'": 1,"';
+          $explodeArray = explode(",",$value);
+          $newArray = array();
+          $oldKey = "";
+          foreach ($explodeArray as $key => $value) {
+            if ($isKey) {
+              $value = trim($value);
+              $oldKey = $value;
+              $newArray[$value] = "";
+              $isKey = false;
+            }else {
+              $newArray[$oldKey] = $value;
+              $isKey = true;
             }
-            $param = substr($param, 0, -2);
-            $param .= '}';
-          }else {
-            $newArray = explode(",",$value);
-            if (count($newArray !=0)) {
-              foreach ($newArray as $key2 => $value2) {
-                $param .= $value2.'": 1,"';
-              }
-              $param = substr($param, 0, -2);
-              $param .= '}';
-            }else
-              $param .= $value.'": 1}';
           }
+          $param = json_encode($newArray);
         }else {
           $param = $value;
         }
@@ -186,26 +196,27 @@ class MyPDO
         return array('estado'=>false,'mensaje'=>$e->getMessage());
     }
   } 
-  public function put($tableName,$awhere,$data)
+  public function put($awhere,$data)
   {
     try {
       $myParse = $this->parseArrayToJsonQuery($data, "PUT");
       if ($myParse['estado']) {
         $where = "";
+        $fieldAfected = '';
         foreach ($awhere as $key => $value) {
           $where .= $key."=".$value." "; 
+          $fieldAfected = $value;
         }
-        $query = "update ".$tableName." set ".$myParse['keys']." where ".$where;
+        $query = "update ".$this->tableName." set ".$myParse['keys']." where ".$where;
         // var_dump($query);
         // var_dump($params);
         $consulta = $this->pdo->prepare($query);
         //mandamos el insert con los parametros recibidos
         $consulta->execute($myParse['params']);
-        return $consulta->rowCount();
-        // if ($consulta->rowCount() != 0)
-        //    return json_encode(array('estado'=>true,'mensaje'=>'Datos actualizados correctamente.'));
-        // else
-        //    return json_encode(array('estado'=>false,'mensaje'=>'Error al actualizar datos en la tabla.'));
+        if($consulta->rowCount() == 1)
+        return array('estado'=>true,'mensaje'=>'Registro con id:'.$fieldAfected.' actualizado correctamente.', 'result'=>array('estado'=>true,'mensaje'=>'Registro con id:'.$fieldAfected.' actualizado correctamente.'));
+        else
+          return array('estado'=>false,'mensaje'=>'Registro en la tabla no encontrado.');
       }else
         return json_encode(array('estado'=>false,'mensaje'=>$myParse['mensaje']));
     } catch (PDOException $e) {

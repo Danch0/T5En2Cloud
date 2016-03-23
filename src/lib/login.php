@@ -1,29 +1,23 @@
 <?php
-//require 'myConnection.php';
-//$db = new MyDB();
+// Extendemos los metodos de MyController
+class Login extends MyController {
 
-class Login{
-	protected $mydb;
-
-	public function __construct() {
-  	global $db;
-		$this->mydb = $db;
+  public function __construct($container)
+  {
+    /** 
+    * Generamos el esqueleto y mandamos campos requeridos
+    * MyPDO(container: objeto contenedor de slim,"nombre de la tabla para PUT, DELETE, POST", "nombre de la tabla para GET", Obtenemos el objeto PDO del contenedor de slim para db)
+    * este objeto lo asignamo a la variable $db de la clase Ficha
+    */
+    parent::__construct($container,"usuario_ma","usuario_ma","id_usuario");
   }
-	public function login($req) {
-		$data = $req->getParsedBody();
-
-		if (is_null($data)) {
-			return json_encode(array('estado'=>false,'mensaje'=>'Los datos recibidos no corresponden a formato valido'));
-		};
-		// var_dump($data);
-		//Manadamos llamar la funcion getAll('NombreTabla', array('name' => $name, 'title' => $title, 'status' => $status)) de la clase myDB()
-		// $psw = crypt($data["password_txt"], ".TRU350LUT10N5}");
-    $registro = $this->mydb->getRegistro('usuario_ma',array('username_txt' => $data['username_txt']));
+	public function post($data = null) {
+    $registro = $this->db->getRegistro(array('username_txt' => $data['username_txt']));
     // var_dump($registro);activo_bol
-    if(count($registro) != 1)
-    	return json_encode(array('estado'=>FALSE,'mensaje'=>'ERROR: registro no se ha encontrado en la tabla.'));
-    if (hash_equals($registro[0]["password_txt"], crypt($data["password_txt"], ".TRU350LUT10N5}")))
-    	return json_encode(array('estado'=>TRUE,'activo_bol'=>$registro[0]["activo_bol"],'id_rol_rol_cat'=>$registro[0]["id_rol_rol_cat"]));
+    if(count($registro['result']) != 1)
+    	return array('estado'=>false,'mensaje'=>'ERROR: registro no se ha encontrado en la tabla.');
+    if (hash_equals($registro['result'][0]["password_txt"], crypt($data["password_txt"], ".TRU350LUT10N5}")))
+    	return array('estado'=>true, 'mensaje'=>'ok', 'result' => array('estado'=>true, 'mensaje'=>'ok','activo_bol'=>$registro['result'][0]["activo_bol"],'id_rol_rol_cat'=>$registro['result'][0]["id_rol_rol_cat"]));
 	}
 
 }

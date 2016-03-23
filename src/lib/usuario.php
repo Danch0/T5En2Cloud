@@ -1,62 +1,29 @@
 <?php
+// Extendemos los metodos de MyController
+class usuario extends MyController {
 
-class Usuario{
-	protected $mydb;
-
-	public function __construct() {
-  	global $db;
-		$this->mydb = $db;
+  public function __construct($container)
+  {
+    /** 
+    * Generamos el esqueleto y mandamos campos requeridos
+    * MyPDO(container: objeto contenedor de slim,"nombre de la tabla para PUT, DELETE, POST", "nombre de la tabla para GET", Obtenemos el objeto PDO del contenedor de slim para db)
+    * este objeto lo asignamo a la variable $db de la clase Ficha
+    */
+    parent::__construct($container,"usuario_ma","usuario_ma","id_usuario");
   }
 
-	public function get() {
-		//Manadamos llamar la funcion getAll('NombreTabla') de la clase myDB()
-    // return $this->mydb->getAll('usuario_ma');
-    return $this->mydb->getUsuarios();
-	}
-
-	public function getRegistro($id) {
-		//Manadamos llamar la funcion getRegistro('NombreTabla', array('id_tabla' => $id)) de la clase myDB()
-    return $this->mydb->getUsuario($id);
-	}
-
-	public function delete($id) {
-		$consulta = $this->mydb->delete('usuario_ma',array('id_usuario' => $id));
-	  if ($consulta == 1)
-			return json_encode(array('estado'=>true,'mensaje'=>'El registro con id:'.$id.' ha sido borrado correctamente.'));
-		else
-			return json_encode(array('estado'=>false,'mensaje'=>'ERROR: registro no se ha encontrado en la tabla.'));
-	}
-
-	public function post($req) {
-		$data = $req->getParsedBody();
-		if (is_null($data)) {
-			return json_encode(array('estado'=>false,'mensaje'=>'Los datos recibidos no corresponden a formato valido'));
-		};
-		$data['password_txt'] = crypt($data['password_txt'], ".TRU350LUT10N5}");
-		$data['activo_bol'] = TRUE;
-
-    $estado = $this->mydb->post('usuario_ma', $data);
-	  if ($estado != 0)
- 	    return json_encode(array('estado'=>true,'mensaje'=>'Datos insertados correctamente.','newId'=>$estado));
- 		else
-			return json_encode(array('estado'=>false,'mensaje'=>'Error al insertar datos en la tabla.'));
-	}
-
-	public function put($req, $id) {
-		$data = $req->getParsedBody();
-		if (is_null($data))
-			return json_encode(array('estado'=>false,'mensaje'=>'Los datos recibidos no corresponden a formato json'));
-		
-		$user = $this->getRegistro($id);
-    $data['password_txt'] = hash_equals($user[0]['password_txt'], $data['password_txt']) ? $data['password_txt']:crypt($data['password_txt']);
-		
-		$estado = $this->mydb->put('usuario_ma',array('id_usuario'=>$id), $data);
-	  if ($estado != 0)
-	     return json_encode(array('estado'=>true,'mensaje'=>'Datos actualizados correctamente.'));
-	  else
-	     return json_encode(array('estado'=>false,'mensaje'=>'Error al insertar datos en la tabla.'));
-	}
-
+  public function get($args = null)
+  {
+  	$limit = array_key_exists('limit', $args) ? string($args['limit']) : "1000";
+  	$filter = array_key_exists('filter', $args)? $args['filter']:$this->tableId;
+    // Comprobamos si no existe el parametro filter ni id obtenemos todos los registros
+    if(!array_key_exists('filter', $args) && !array_key_exists('id', $args))
+	    // echo $limit;
+	    return $this->db->getQuery("(select * from usuario_ma where isnull(usuario_ma.id_doctor_doctor_ma)) union (select u.id_usuario, u.id_doctor_doctor_ma, u.id_rol_rol_cat, d.nombre_txt, d.apellido_pat_txt, d.apellido_mat_txt, u.username_txt, u.password_txt, u.email_txt, u.fecha_alta_dt, u.ultimo_login_dt, u.activo_bol from usuario_ma as u join doctor_ma as d on u.id_doctor_doctor_ma = d.id_doctor) limit ".$limit);
+    else {
+    	return $this->db->getQuery("(select * from usuario_ma as u1 where isnull(u1.id_doctor_doctor_ma) and u1.".$filter." = '".$args['id']."') union (select u.id_usuario, u.id_doctor_doctor_ma, u.id_rol_rol_cat, d.nombre_txt, d.apellido_pat_txt, d.apellido_mat_txt, u.username_txt, u.password_txt, u.email_txt, u.fecha_alta_dt, u.ultimo_login_dt, u.activo_bol from usuario_ma as u join doctor_ma as d on u.id_doctor_doctor_ma = d.id_doctor where ".$filter." = '".$args['id']."')");
+    }
+      // return $this->db->getRegistro(array(array_key_exists('filter', $args)? $args['filter']:$this->tableId => $args['id']));
+  }
 }
-
 ?>
