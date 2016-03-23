@@ -12,29 +12,6 @@ class MyPDO
     $this->pdo = $pdo;
     self::isdeleteLogic();
   }
-  
- //  function __construct() {}
-
-	// public function tableName($tableName='')
- //  {
- //    $this->tableName = $tableName;
- //  }
- //  public function tableId($tableId='')
- //  {
- //    $this->tableId = $tableId;
- //  }
- //  public function pdo($pdo='')
- //  {
- //    $this->pdo = $pdo;
- //    $this->isdeleteLogic();
- //  }
-
-  // public $tableName;
-  // public $tableId;
-  // public $deleteLogic;
-  // public $pdo;
-
-  // function __construct() {}
 
   //conprueba si la tabla es de borrado logico
   public function isdeleteLogic() {
@@ -82,7 +59,7 @@ class MyPDO
     }
   } 
   // Obtener registro especifico de tabla ?
-  public function getRegistro($tableName, $awhere)
+  public function getRegistro($awhere)
   {
     try {
       $where = "";
@@ -90,11 +67,11 @@ class MyPDO
         $where .= $key."='".$value."' "; 
       }
       // var_dump("select * from ".$tableName." where ".$where);
-    	$consulta = $this->pdo->prepare("select * from ".$tableName." where ".$where);
+    	$consulta = $this->pdo->prepare("select * from ".$this->tableName." where ".$where);
       $consulta->execute();
       // Retornamos los resultados en un array asociativo.
       $result = $consulta->fetchAll(PDO::FETCH_ASSOC);
-      return $this->parseJsonToArray($result);
+      return array('estado'=>true,'mensaje'=>"ok", 'result'=> $this->parseJsonToArray($result));
     } catch (PDOException $e) {
       return array('estado'=>false,'mensaje'=>$e->getMessage());
     }
@@ -132,27 +109,30 @@ class MyPDO
     }
 
   }
-  public function post($tableName,$data)
+  public function post($data)
   {
     try {
       $myParse = $this->parseArrayToJsonQuery($data, "POST");
       if ($myParse['estado']) {
-        $query = "insert into ".$tableName."(".$myParse['keys'].") values (".$myParse['values'].")";
+        $query = "insert into ".$this->tableName."(".$myParse['keys'].") values (".$myParse['values'].")";
         $consulta = $this->pdo->prepare($query);
         //mandamos el insert con los parametros recibidos
         if($consulta->execute($myParse['params']) == true) {
           $newId = $this->pdo->lastInsertId();
-          if ($tableName == "paciente_ma") {
+          if ($this->tableName == "paciente_ma") {
             $newIdExp = $this->getRegistro("expediente_ma",array('id_paciente_paciente_ma' => $newId));
-            return array('newId' => $newId, 'newIdExp' => $newIdExp[0]['id_expediente']);
+            return array('estado'=>true,'mensaje'=>"Insert into ".$this->tableName.' newId:'.$newId.' newIdExp:'.$newIdExp[0]['id_expediente'],
+              'result'=> array('estado'=>true, 'mensaje'=>"Registro insertado correctamente con id: ".$newId, 'newId' => $newId, 
+                'newIdExp' => $newIdExp[0]['id_expediente']));
           }
-          return $newId;
+          return array('estado'=>true,'mensaje'=>"Insert into ".$this->tableName.' newId:'.$newId,
+              'result'=> array('estado'=>true, 'mensaje'=>"Registro insertado correctamente con id: ".$newId, 'newId' => $newId));
         }else
-          return 0;
+          return array('estado'=>false,'mensaje'=>"Error desconocido");
       }else
-        return json_encode(array('estado'=>false,'mensaje'=>$myParse['mensaje']));
+        return array('estado'=>false,'mensaje'=>$myParse['mensaje']);
     } catch (PDOException $e) {
-        return json_encode(array('estado'=>false,'mensaje'=>$e->getMessage()));
+        return array('estado'=>false,'mensaje'=>$e->getMessage());
     }
   }
   //Convierte en array los campo json obtenidos de la BD
