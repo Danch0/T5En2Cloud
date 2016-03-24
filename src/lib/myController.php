@@ -56,9 +56,11 @@ class MyController {
 
   public function get($args = null)
   {
+    $limit = array_key_exists('limit', $args) ? string($args['limit']) : "1000";
+    $filter = array_key_exists('filter', $args)? $args['filter']:$this->tableId;
     // Comprobamos si no existe el parametro filter ni id obtenemos todos los registros
     if(!array_key_exists('filter', $args) && !array_key_exists('id', $args))
-      return $this->db->getAll();
+      return $this->db->getAll($limit);
     else
       return $this->db->getRegistro(array(array_key_exists('filter', $args)? $args['filter']:$this->tableId => $args['id']));
   }

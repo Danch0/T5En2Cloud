@@ -19,7 +19,6 @@ class MyPDO
       $consulta = $this->pdo->prepare("select * from ".$this->tableName." limit 1");
       $consulta->execute();
       $result = ($consulta->fetchAll(PDO::FETCH_ASSOC));
-      // var_dump($result[0]);
       if (count($result) != 1)
         $this->deleteLogic = false;
       else 
@@ -70,7 +69,6 @@ class MyPDO
       foreach ($awhere as $key => $value) {
         $where .= $key."='".$value."' "; 
       }
-      // var_dump("select * from ".$tableName." where ".$where);
     	$consulta = $this->pdo->prepare("select * from ".$this->tableGet." where ".$where);
       $consulta->execute();
       // Retornamos los resultados en un array asociativo.
@@ -178,8 +176,6 @@ class MyPDO
         }else {
           $param = $value;
         }
-        // var_dump($param);
-        // $data[$key] = $param;
         $params[$cont] = $param;
 
 
@@ -187,7 +183,6 @@ class MyPDO
         $cont += 1;
 
       }
-      // var_dump($params);
       $keys = substr($keys, 0, -1);
       $values = substr($values, 0, -1);
 
@@ -208,8 +203,6 @@ class MyPDO
           $fieldAfected = $value;
         }
         $query = "update ".$this->tableName." set ".$myParse['keys']." where ".$where;
-        // var_dump($query);
-        // var_dump($params);
         $consulta = $this->pdo->prepare($query);
         //mandamos el insert con los parametros recibidos
         $consulta->execute($myParse['params']);
