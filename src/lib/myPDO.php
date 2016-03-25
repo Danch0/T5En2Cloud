@@ -211,9 +211,9 @@ class MyPDO
         else
           return array('estado'=>false,'mensaje'=>'Registro en la tabla no encontrado.');
       }else
-        return json_encode(array('estado'=>false,'mensaje'=>$myParse['mensaje']));
+        return array('estado'=>false,'mensaje'=>$myParse['mensaje']);
     } catch (PDOException $e) {
-        return json_encode(array('estado'=>false,'mensaje'=>$e->getMessage()));
+        return array('estado'=>false,'mensaje'=>$e->getMessage());
     }
 
     
