@@ -1,6 +1,6 @@
 <?php
 // Extendemos los metodos de MyController
-class usuario extends MyController {
+class Usuario extends MyController {
 
   public function __construct($container)
   {

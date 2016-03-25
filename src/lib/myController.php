@@ -46,7 +46,7 @@ class MyController {
         $response = $this->post($data);
       }
       if($method == 'PUT') {
-        $response = $this->put($data);
+        $response = $this->put($args,$data);
       }
     }
 
@@ -75,7 +75,7 @@ class MyController {
     return $this->db->post($data);
   }
 
-  public function put($data = null)
+  public function put($args, $data = null)
   {
     return $this->db->put(array($this->tableId => $args['id']), $data);
   }
