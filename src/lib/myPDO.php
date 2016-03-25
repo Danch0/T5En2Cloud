@@ -28,10 +28,10 @@ class MyPDO
     }
   }
   //Obtener registros de una tabla
-  public function getAll($limit = 0)
+  public function getAll($limit = "")
   {
     try {
-      $limit = $limit != 0 ? string($limit) : "1000";
+      $limit = $limit != "" ? $limit : "1000";
       if ($this->deleteLogic) {
         $consulta = $this->pdo->prepare("select * from ".$this->tableGet." where deleted_bool <> 1 OR isnull(deleted_bool) limit ".$limit);
       }else
