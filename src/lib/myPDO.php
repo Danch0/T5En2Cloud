@@ -69,7 +69,10 @@ class MyPDO
       foreach ($awhere as $key => $value) {
         $where .= $key."='".$value."' "; 
       }
-    	$consulta = $this->pdo->prepare("select * from ".$this->tableGet." where ".$where);
+      if ($this->deleteLogic) {
+        $consulta = $this->pdo->prepare("select * from ".$this->tableGet." where (deleted_bool <> 1 OR isnull(deleted_bool)) and ".$where);
+      }else
+        $consulta = $this->pdo->prepare("select * from ".$this->tableGet." where ".$where);
       $consulta->execute();
       // Retornamos los resultados en un array asociativo.
       $result = $consulta->fetchAll(PDO::FETCH_ASSOC);
@@ -174,7 +177,10 @@ class MyPDO
           }
           $param = json_encode($newArray);
         }else {
-          $param = $value;
+          if($value==null || $value=="null")
+            $param = null;
+          else
+            $param = $value;
         }
         $params[$cont] = $param;
 
