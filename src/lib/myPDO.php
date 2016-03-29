@@ -132,10 +132,11 @@ class MyPDO
         if($consulta->execute($myParse['params']) == true) {
           $newId = $this->pdo->lastInsertId();
           if ($this->tableName == "paciente_ma") {
-            $newIdExp = $this->getRegistro("expediente_ma",array('id_paciente_paciente_ma' => $newId));
-            return array('estado'=>true,'mensaje'=>"Insert into ".$this->tableName.' newId:'.$newId.' newIdExp:'.$newIdExp[0]['id_expediente'],
+            $result = $this->getRegistro(array('id_paciente' => $newId));
+            $newIdExp = $result['result'][0]['id_expediente'];
+            return array('estado'=>true,'mensaje'=>"Insert into ".$this->tableName.' newId:'.$newId.' newIdExp:'.$newIdExp,
               'result'=> array('estado'=>true, 'mensaje'=>"Registro insertado correctamente con id: ".$newId, 'newId' => $newId, 
-                'newIdExp' => $newIdExp[0]['id_expediente']));
+                'newIdExp' => $newIdExp));
           }
           return array('estado'=>true,'mensaje'=>"Insert into ".$this->tableName.' newId:'.$newId,
               'result'=> array('estado'=>true, 'mensaje'=>"Registro insertado correctamente con id: ".$newId, 'newId' => $newId));
