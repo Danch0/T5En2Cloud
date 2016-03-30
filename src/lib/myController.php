@@ -51,7 +51,7 @@ class MyController {
     }
 
     $this->logger->addInfo("Response->".$response['estado'].":Message->".$response['mensaje']);
-    return json_encode($response['estado']? $response['result']:array('estado'=>$response['estado'], 'mensaje'=>$response['mensaje']));
+    return json_encode($response['estado']? $response['result']:array('estado'=>false, 'mensaje'=>$response['mensaje']));
   }
 
   public function get($args = null)

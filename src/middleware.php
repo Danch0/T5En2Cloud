@@ -33,9 +33,22 @@ $app->add(function ($request, $response, $next) {
 $app->add(function ($request, $response, $next) {
     // echo $request->getHeader('PHP_AUTH_USER')[0].$request->getHeader('PHP_AUTH_PW')[0];
     $myheaders = $request->getHeaders();
-    if(array_key_exists('PHP_AUTH_USER', $myheaders) && array_key_exists('PHP_AUTH_PW', $myheaders)){
-        if($request->getHeader('PHP_AUTH_USER')[0].$request->getHeader('PHP_AUTH_PW')[0] == "T53NTUCL0UDTRU350LUT10N5")
-            return $next($request, $response);
+    $resourceUri = explode("/",$request->getUri());
+    if($resourceUri[count($resourceUri)-1] != "login") {
+        if(array_key_exists('PHP_AUTH_USER', $myheaders) && array_key_exists('PHP_AUTH_PW', $myheaders)){
+          $db = new MyPDO("token_ma","token_ma",$this->db);
+          $token = $db->isTokenValid($myheaders);
+          // if($request->getHeader('PHP_AUTH_USER')[0].$request->getHeader('PHP_AUTH_PW')[0] == "T53NTUCL0UDTRU350LUT10N5")
+          if($token['estado'])
+              return $next($request, $response);
+          else {
+              $res = $response
+               ->withStatus(404)
+               ->withHeader('Content-Type', 'text/html')
+               ->write($token['mensaje']);
+               return $res;
+          }
+        }
         else {
             $res = $response
              ->withStatus(404)
@@ -43,12 +56,6 @@ $app->add(function ($request, $response, $next) {
              ->write('Page not found');
              return $res;
         }
-    }
-    else {
-        $res = $response
-         ->withStatus(404)
-         ->withHeader('Content-Type', 'text/html')
-         ->write('Page not found');
-         return $res;
-    }
+    }else
+      return $next($request, $response);
 });

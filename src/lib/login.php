@@ -12,24 +12,19 @@ class Login extends MyController {
     parent::__construct($container,"usuario_ma","vw_usuario_det","id_usuario");
   }
 	public function post($data = null) {
-    $registro = $this->db->getRegistro(array('username_txt' => $data['username_txt']));
-    // var_dump($registro);activo_bol
-    if($registro['estado']) {
-      if(count($registro['result']) == 1){
-        if (hash_equals($registro['result'][0]["password_txt"], crypt($data["password_txt"], ".TRU350LUT10N5}"))) {
-          $usuario = $registro['result'][0];
-          unset($usuario['id_usuario']);
-          unset($usuario['id_doctor_doctor_ma']);
-          unset($usuario['password_txt']);
-          unset($usuario['fecha_alta_dt']);
-          unset($usuario['ultimo_login_dt']);
-          unset($usuario['deleted_bool']);
-          return array('estado'=>true, 'mensaje'=>'ok', 'result' => array('estado'=>true, 'mensaje'=>'ok','usuario'=>$usuario));
-        }
-      }
-      return array('estado'=>false,'mensaje'=>'Usuario o Contraseña incorrectos.');
+    $response = $this->db->login($data);
+    if ($response['estado']) {
+      $usuario = $response['result']['usuario'];
+      unset($usuario['id_usuario']);
+      unset($usuario['id_doctor_doctor_ma']);
+      unset($usuario['password_txt']);
+      unset($usuario['fecha_alta_dt']);
+      unset($usuario['ultimo_login_dt']);
+      unset($usuario['deleted_bool']);
+      return array('estado'=>true, 'mensaje'=>'ok', 'result' => array('estado'=>true, 'mensaje'=>'ok', 'id_cliente' => $response['result']['id_cliente'], 
+        'token' => $response['result']['token'], 'usuario'=>$usuario));
     }else
-      return array('estado'=>false,'mensaje'=>$registro['mensaje']);
+      return array('estado'=>false,'mensaje'=>$response['mensaje']);
 	}
 
 }

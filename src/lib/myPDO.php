@@ -12,7 +12,93 @@ class MyPDO
     $this->pdo = $pdo;
     self::isdeleteLogic();
   }
-
+  // Genera un string random
+  private function generateRandomString($length = 25) {
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $charactersLength = strlen($characters);
+    $randomString = '';
+    for ($i = 0; $i < $length; $i++) {
+        $randomString .= $characters[rand(0, $charactersLength - 1)];
+    }
+    return $randomString;
+  }
+  // Login
+  public function login($data='')
+  {
+    try{
+      $registro = $this->getRegistro(array('username_txt' => $data['username_txt']));
+      // var_dump($registro['result'][0]['activo_bol'] == 1);
+      if ($registro['estado']) {
+        if(count($registro['result']) == 1) {
+          if($registro['result'][0]['activo_bol'] == 1){
+            if (hash_equals($registro['result'][0]["password_txt"], crypt($data["password_txt"], ".TRU350LUT10N5}"))) {
+              $this->put(array('id_usuario' => $registro['result'][0]['id_usuario'] ), array('ultimo_login_dt' => date("Y-m-d H:i:s") ) );
+              $token = $this->newToken($registro['result'][0]['id_usuario']);
+              if ($token['estado']) {
+                return array('estado'=>true, 'mensaje'=>'ok', 'result' => array('estado'=>true, 'mensaje'=>'ok', 'id_cliente' => $token['result']['id_cliente'], 
+                  'token' => $token['result']['token'], 'id_rol_rol_cat'=>$registro['result'][0]["id_rol_rol_cat"]));
+              }else
+                return array('estado'=>false,'mensaje'=>$token['mensaje']);
+            }
+          }
+        }
+      }else
+        return array('estado'=>false,'mensaje'=>$registro['mensaje']);
+      return array('estado'=>false,'mensaje'=>'Usuario o password incorrecto.');
+    } catch (PDOException $e) {
+      return array('estado'=>false,'mensaje'=>$e->getMessage());
+    } catch (Exception $e2){
+      return array('estado'=>false,'mensaje'=>$e2->getMessage());
+    }
+  }
+  // Validar tojen
+  public function isTokenValid($myheaders = array())
+  {
+    try{
+      $registro = $this->getRegistro(array('id_cliente_txt' => $myheaders['PHP_AUTH_USER'][0]));
+      // var_dump($registro['result']);
+      if ($registro['estado']) {
+        if(count($registro['result']) == 1) {
+          if($registro['result'][0]['activo_bool'] == 0){
+            $date1 = new DateTime($registro['result'][0]['fecha_alta_dt']);
+            $date2 = new DateTime(date("Y-m-d H:i:s"));
+            $interval = $date1->diff($date2)->h;
+            if($interval <= 8){
+              if (hash_equals($registro['result'][0]["token_txt"], $myheaders['PHP_AUTH_PW'][0])) 
+                return array('estado'=>true, 'mensaje'=>'ok', 'result' => array('estado'=>true, 'mensaje'=>'ok'));
+            }else
+              return array('estado'=>false,'mensaje'=>'Token invalido');
+          }
+        }
+      }else
+        return array('estado'=>false,'mensaje'=>$registro['mensaje']);
+      return array('estado'=>false,'mensaje'=>'Credenciales obligatorias.');
+    } catch (PDOException $e) {
+      return array('estado'=>false,'mensaje'=>$e->getMessage());
+    } catch (Exception $e2){
+      return array('estado'=>false,'mensaje'=>$e2->getMessage());
+    }
+  }
+  // Registra token
+  public function newToken($id_usuario = "")
+  {
+    try {
+      $id_cliente = $this->generateRandomString();
+      $token = crypt($this->generateRandomString(15), ".TRU350LUT10N5}");
+      $newData = array($id_cliente,$id_usuario,$token,date("Y-m-d H:i:s"),0);
+      $query = "insert into token_ma(id_cliente_txt,id_usuario_usuario_ma,token_txt,fecha_alta_dt,activo_bool) values (?,?,?,?,?)";
+      $consulta = $this->pdo->prepare($query);
+      //mandamos el insert con los parametros recibidos
+      if($consulta->execute($newData) == true) {
+        $newId = $this->pdo->lastInsertId();
+        return array('estado'=>true,'mensaje'=>"Insert into token_ma newId:".$newId,
+            'result'=> array('estado'=>true, 'mensaje'=>"Ok", 'id_cliente' => $id_cliente, 'token' => $token));
+      }else
+        return array('estado'=>false,'mensaje'=>"Error desconocido");
+    } catch (PDOException $e) {
+        return array('estado'=>false,'mensaje'=>$e->getMessage());
+    }
+  }
   //conprueba si la tabla es de borrado logico
   public function isdeleteLogic() {
     try{
