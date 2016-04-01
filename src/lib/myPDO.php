@@ -76,6 +76,9 @@ class MyPDO
       $consulta->execute();
       // Retornamos los resultados en un array asociativo.
       $result = $consulta->fetchAll(PDO::FETCH_ASSOC);
+      $prefijo = explode("_", $this->tableName)[0];
+      if ($prefijo == "media") 
+        return array('estado'=>true,'mensaje'=>"ok", 'result'=>array($prefijo => $this->parseJsonToArray($result))) ;
       return array('estado'=>true,'mensaje'=>"ok", 'result'=> $this->parseJsonToArray($result));
     } catch (PDOException $e) {
       return array('estado'=>false,'mensaje'=>$e->getMessage());
