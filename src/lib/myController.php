@@ -27,8 +27,11 @@ class MyController {
     $method = $req->getMethod();
     // Obtenemos la url del request
     $uri = $req->getUri();
+    $resourceUri = explode("/",$uri);
+    // Obtenemos la ip donde se origino el request
+    $ip_address = $req->getAttribute('ip_address');
     // Guardamos el log con el metodo y url del request
-    $this->logger->addInfo($req->getAttribute('ip_address').$method."->".$uri);
+    $this->logger->addInfo($ip_address.$method."->".$uri);
 
     if($method == 'GET'){
       $response = $this->get($args);
@@ -43,6 +46,8 @@ class MyController {
       };
 
       if($method == 'POST') {
+        if($resourceUri[count($resourceUri)-1] == "login")
+          $data['ip_address'] = $ip_address;
         $response = $this->post($data);
       }
       if($method == 'PUT') {

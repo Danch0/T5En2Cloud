@@ -33,7 +33,7 @@ class MyPDO
           if($registro['result'][0]['activo_bol'] == 1){
             if (hash_equals($registro['result'][0]["password_txt"], crypt($data["password_txt"], ".TRU350LUT10N5}"))) {
               $this->put(array('id_usuario' => $registro['result'][0]['id_usuario'] ), array('ultimo_login_dt' => date("Y-m-d H:i:s") ) );
-              $token = $this->newToken($registro['result'][0]['id_usuario']);
+              $token = $this->newToken($registro['result'][0]['id_usuario'],$data['ip_address']);
               if ($token['estado']) {
                 return array('estado'=>true, 'mensaje'=>'ok', 'result' => array('estado'=>true, 'mensaje'=>'ok', 'id_cliente' => $token['result']['id_cliente'], 
                   'token' => $token['result']['token'], 'id_rol_rol_cat'=>$registro['result'][0]["id_rol_rol_cat"]));
@@ -56,23 +56,25 @@ class MyPDO
   {
     try{
       $registro = $this->getRegistro(array('id_cliente_txt' => $myheaders['PHP_AUTH_USER'][0]));
-      // var_dump($registro['result']);
-      if ($registro['estado']) {
-        if(count($registro['result']) == 1) {
-          if($registro['result'][0]['activo_bool'] == 0){
-            $date1 = new DateTime($registro['result'][0]['fecha_alta_dt']);
+      // var_dump($registro['estado']);
+      if ($registro['estado']) { 
+        $registro = $registro['result'];
+        if(count($registro) >= 1) { 
+          $registro = $registro[count($registro) -1];
+          if($registro['activo_bool'] == 1){
+            $date1 = new DateTime($registro['fecha_alta_dt']);
             $date2 = new DateTime(date("Y-m-d H:i:s"));
             $interval = $date1->diff($date2)->h;
             if($interval <= 8){
-              if (hash_equals($registro['result'][0]["token_txt"], $myheaders['PHP_AUTH_PW'][0])) 
+              if (hash_equals($registro["token_txt"], $myheaders['PHP_AUTH_PW'][0]) && $registro["ip_cliente_txt"] == $myheaders['ip_address']) 
                 return array('estado'=>true, 'mensaje'=>'ok', 'result' => array('estado'=>true, 'mensaje'=>'ok'));
             }else
-              return array('estado'=>false,'mensaje'=>'Token invalido');
+              throw new Exception('Token invalido');
           }
         }
       }else
-        return array('estado'=>false,'mensaje'=>$registro['mensaje']);
-      return array('estado'=>false,'mensaje'=>'Credenciales obligatorias.');
+        throw new Exception($registro['mensaje']);
+      throw new Exception('Credenciales obligatorias.');
     } catch (PDOException $e) {
       return array('estado'=>false,'mensaje'=>$e->getMessage());
     } catch (Exception $e2){
@@ -80,13 +82,13 @@ class MyPDO
     }
   }
   // Registra token
-  public function newToken($id_usuario = "")
+  public function newToken($id_usuario = "", $ip_address = "")
   {
     try {
       $id_cliente = $this->generateRandomString();
       $token = crypt($this->generateRandomString(15), ".TRU350LUT10N5}");
-      $newData = array($id_cliente,$id_usuario,$token,date("Y-m-d H:i:s"),0);
-      $query = "insert into token_ma(id_cliente_txt,id_usuario_usuario_ma,token_txt,fecha_alta_dt,activo_bool) values (?,?,?,?,?)";
+      $newData = array($id_cliente,$id_usuario,$token,$ip_address,date("Y-m-d H:i:s"),1);
+      $query = "insert into token_ma(id_cliente_txt,id_usuario_usuario_ma,token_txt,ip_cliente_txt,fecha_alta_dt,activo_bool) values (?,?,?,?,?,?)";
       $consulta = $this->pdo->prepare($query);
       //mandamos el insert con los parametros recibidos
       if($consulta->execute($newData) == true) {

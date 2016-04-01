@@ -36,12 +36,13 @@ $app->add(new RKA\Middleware\IpAddress($checkProxyHeaders, $trustedProxies));
 
 $app->add(function ($request, $response, $next) {
     // echo $request->getHeader('PHP_AUTH_USER')[0].$request->getHeader('PHP_AUTH_PW')[0];
-  var_dump($request->getServerParams()['REMOTE_ADDR']);
+    $ip_address = $request->getServerParams()['REMOTE_ADDR'];
     $myheaders = $request->getHeaders();
     $resourceUri = explode("/",$request->getUri());
     if($resourceUri[count($resourceUri)-1] != "login") {
         if(array_key_exists('PHP_AUTH_USER', $myheaders) && array_key_exists('PHP_AUTH_PW', $myheaders)){
           $db = new MyPDO("token_ma","token_ma",$this->db);
+          $myheaders['ip_address'] = $ip_address;
           $token = $db->isTokenValid($myheaders);
           // if($request->getHeader('PHP_AUTH_USER')[0].$request->getHeader('PHP_AUTH_PW')[0] == "T53NTUCL0UDTRU350LUT10N5")
           if($token['estado'])
