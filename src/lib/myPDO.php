@@ -167,18 +167,22 @@ class MyPDO
           $explodeArray = explode(",",$value);
           $newArray = array();
           $oldKey = "";
-          foreach ($explodeArray as $key => $value) {
-            if ($isKey) {
-              $value = trim($value);
-              $oldKey = $value;
-              $newArray[$value] = "";
-              $isKey = false;
-            }else {
-              $newArray[$oldKey] = $value;
-              $isKey = true;
+          if($value==null || $value=="null")
+            $param = null;
+          else {
+            foreach ($explodeArray as $key => $value) {
+              if ($isKey) {
+                $value = trim($value);
+                $oldKey = $value;
+                $newArray[$value] = "";
+                $isKey = false;
+              }else {
+                $newArray[$oldKey] = $value;
+                $isKey = true;
+              }
             }
+            $param = json_encode($newArray);
           }
-          $param = json_encode($newArray);
         }else {
           if($value==null || $value=="null")
             $param = null;
@@ -187,10 +191,8 @@ class MyPDO
         }
         $params[$cont] = $param;
 
-
         $values .= "?,";
         $cont += 1;
-
       }
       $keys = substr($keys, 0, -1);
       $values = substr($values, 0, -1);
