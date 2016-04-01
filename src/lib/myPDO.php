@@ -124,6 +124,8 @@ class MyPDO
   public function post($data)
   {
     try {
+      if(array_key_exists("password_txt", $data))
+        $data['password_txt'] = crypt($data['password_txt'], ".TRU350LUT10N5}");
       $myParse = $this->parseArrayToJsonQuery($data, "POST");
       if ($myParse['estado']) {
         $query = "insert into ".$this->tableName."(".$myParse['keys'].") values (".$myParse['values'].")";
@@ -201,6 +203,19 @@ class MyPDO
   public function put($awhere,$data)
   {
     try {
+      if(array_key_exists("password_txt", $data))
+      {
+        $user = $this->getRegistro($awhere);
+        if ($user['estado']) {
+          $user = $user['result'];
+          if (count($user) == 1) {
+            $user = $user[0];
+            $data['password_txt'] = hash_equals($user['password_txt'], $data['password_txt']) ? $data['password_txt']:crypt($data['password_txt'], ".TRU350LUT10N5}");
+          }else
+            throw new Exception("Ocurrio algun problema mientras se intentava actualizar, intentelo mas tarde.");
+        }else
+          throw new Exception($user['mensaje']);
+      }
       $myParse = $this->parseArrayToJsonQuery($data, "PUT");
       if ($myParse['estado']) {
         $where = "";
@@ -214,13 +229,15 @@ class MyPDO
         //mandamos el insert con los parametros recibidos
         $consulta->execute($myParse['params']);
         if($consulta->rowCount() == 1)
-        return array('estado'=>true,'mensaje'=>'Registro con id:'.$fieldAfected.' actualizado correctamente.', 'result'=>array('estado'=>true,'mensaje'=>'Registro con id:'.$fieldAfected.' actualizado correctamente.'));
+          return array('estado'=>true,'mensaje'=>'Registro con id:'.$fieldAfected.' actualizado correctamente.', 'result'=>array('estado'=>true,'mensaje'=>'Registro con id:'.$fieldAfected.' actualizado correctamente.'));
         else
           return array('estado'=>false,'mensaje'=>'Registro en la tabla no encontrado.');
       }else
         return array('estado'=>false,'mensaje'=>$myParse['mensaje']);
     } catch (PDOException $e) {
         return array('estado'=>false,'mensaje'=>$e->getMessage());
+    } catch (Exception $e2) {
+        return array('estado'=>false,'mensaje'=>$e2->getMessage());
     }
 
     
