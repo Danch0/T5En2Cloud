@@ -30,8 +30,13 @@ $app->add(function ($request, $response, $next) {
     return $next($request, $newResp);
 });
 
+$checkProxyHeaders = true;
+$trustedProxies = ['10.0.0.1', '10.0.0.2'];
+$app->add(new RKA\Middleware\IpAddress($checkProxyHeaders, $trustedProxies));
+
 $app->add(function ($request, $response, $next) {
     // echo $request->getHeader('PHP_AUTH_USER')[0].$request->getHeader('PHP_AUTH_PW')[0];
+  var_dump($request->getServerParams()['REMOTE_ADDR']);
     $myheaders = $request->getHeaders();
     $resourceUri = explode("/",$request->getUri());
     if($resourceUri[count($resourceUri)-1] != "login") {

@@ -4,9 +4,57 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "38291c737666ddcd6d39d21f9394ef33",
-    "content-hash": "4ba243708f2996f3e00c5084d38652a1",
+    "hash": "e076b15199a7b7e9dc44aba5617e5a67",
+    "content-hash": "18bfeb1ec542eb995b69ff77f10e34ca",
     "packages": [
+        {
+            "name": "akrabat/rka-ip-address-middleware",
+            "version": "0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/akrabat/rka-ip-address-middleware.git",
+                "reference": "1c9947fdbaad04614e8b15d55f191f11c39293d1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/akrabat/rka-ip-address-middleware/zipball/1c9947fdbaad04614e8b15d55f191f11c39293d1",
+                "reference": "1c9947fdbaad04614e8b15d55f191f11c39293d1",
+                "shasum": ""
+            },
+            "require": {
+                "psr/http-message": "^1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8",
+                "squizlabs/php_codesniffer": "^2.3",
+                "zendframework/zend-diactoros": "^1.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "RKA\\Middleware\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Rob Allen",
+                    "email": "rob@akrabat.com",
+                    "homepage": "http://akrabat.com"
+                }
+            ],
+            "description": "PSR-7 Middleware that determines the client IP address and stores it as an ServerRequest attribute",
+            "homepage": "http://github.com/akrabat/rka-ip-address-middleware",
+            "keywords": [
+                "IP",
+                "middleware",
+                "psr7"
+            ],
+            "time": "2015-11-06 10:38:17"
+        },
         {
             "name": "container-interop/container-interop",
             "version": "1.1.0",
