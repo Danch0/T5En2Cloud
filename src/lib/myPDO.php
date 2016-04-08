@@ -28,15 +28,15 @@ class MyPDO
     try{
       $registro = $this->getRegistro(array('username_txt' => $data['username_txt']));
       // var_dump($registro['result'][0]['activo_bol'] == 1);
-      if ($registro['estado']) {
-        if(count($registro['result']) == 1) {
-          if($registro['result'][0]['activo_bol'] == 1){
-            if (hash_equals($registro['result'][0]["password_txt"], crypt($data["password_txt"], ".TRU350LUT10N5}"))) {
-              $this->put(array('id_usuario' => $registro['result'][0]['id_usuario'] ), array('ultimo_login_dt' => date("Y-m-d H:i:s") ) );
-              $token = $this->newToken($registro['result'][0]['id_usuario'],$data['ip_address']);
+      if ($registro['estado']) { $registro = $registro['result'];
+        if(count($registro) == 1) { $registro = $registro[0];
+          if($registro['activo_bol'] == 1){
+            if (hash_equals($registro["password_txt"], crypt($data["password_txt"], ".TRU350LUT10N5}"))) {
+              $this->put(array('id_usuario' => $registro['id_usuario'] ), array('ultimo_login_dt' => date("Y-m-d H:i:s") ) );
+              $token = $this->newToken($registro['id_usuario'],$data['ip_address']);
               if ($token['estado']) {
                 return array('estado'=>true, 'mensaje'=>'ok', 'result' => array('estado'=>true, 'mensaje'=>'ok', 'id_cliente' => $token['result']['id_cliente'], 
-                  'token' => $token['result']['token'], 'id_rol_rol_cat'=>$registro['result'][0]["id_rol_rol_cat"]));
+                  'token' => $token['result']['token'], 'usuario'=>$registro));
               }else
                 return array('estado'=>false,'mensaje'=>$token['mensaje']);
             }
