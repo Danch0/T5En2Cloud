@@ -5,6 +5,7 @@ class MyController {
   protected $db;
   protected $logger;
   protected $tableId;
+  protected $prefijo;
   public function __construct($container,$tableName,$tableNameGet,$tableId)
   {
     // Obtenemos el objeto logger del contenedor de slim y lo asignamos a la varible $logger de la clase Ficha
@@ -17,6 +18,8 @@ class MyController {
     $this->db = new MyPDO($tableName,$tableNameGet,$container->get('db'));
     // Asignamos el id de la tabla
     $this->tableId = $tableId;
+    // Obtenemos el prefijo para el body del response
+    $this->prefijo = explode("_", $tableName)[0];
   }
 
   public function __invoke($req, $res, $args)
@@ -51,12 +54,15 @@ class MyController {
         $response = $this->post($data);
       }
       if($method == 'PUT') {
+        if($resourceUri[count($resourceUri)-1] == "logout")
+          $data = $req->getHeaders();
         $response = $this->put($args,$data);
       }
     }
 
     $this->logger->addInfo("Response->".$response['estado'].":Message->".$response['mensaje']);
-    return json_encode($response['estado']? $response['result']:array('estado'=>false, 'mensaje'=>$response['mensaje']));
+  // Genera un response en base al status y agrega el result
+    return json_encode($response['estado']? array($this->prefijo => $response['result']):array($this->prefijo => array('estado'=>false,'mensaje'=>$response['mensaje'])));
   }
 
   public function get($args = null)

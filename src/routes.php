@@ -14,6 +14,8 @@ $app->get('/fichas', 'Ficha');
 // ########################### Login  ###########################
 // Validar usuario
 $app->post('/login', 'Login');
+// Desactivar token
+$app->put('/logout', 'Login');
 // ########################### doctor ###########################
 $app->group('/doctor[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Doctor');

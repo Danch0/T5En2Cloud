@@ -27,6 +27,15 @@ class Login extends MyController {
       return array('estado'=>false,'mensaje'=>$response['mensaje']);
 	}
 
+  public function put($args, $data = null)
+  {
+    $response = $this->db->logout($data['PHP_AUTH_USER'][0]);
+    if ($response['estado']) {
+      return array('estado'=>true,'mensaje'=>'ok','result'=>$response['result']);
+    }else
+      return array('estado'=>false,'mensaje'=>$response['mensaje']);
+  }
+
 }
 
 ?>

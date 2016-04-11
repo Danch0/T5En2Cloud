@@ -12,6 +12,24 @@ class MyPDO
     $this->pdo = $pdo;
     self::isdeleteLogic();
   }
+  // Desactivar token
+  public function logout($value='')
+  {
+    try{
+      $query = "update token_ma set activo_bool=? where id_cliente_txt = '".$value."' ";
+      $consulta = $this->pdo->prepare($query);
+      //mandamos el insert con los parametros recibidos
+      $consulta->execute(array(0));
+      if($consulta->rowCount() == 1)
+        return array('estado'=>true,'mensaje'=>'Token desactivado, id_cliente:'.$value, 'result'=>array('estado'=>true,'mensaje'=>'OK'));
+      else
+        throw new Exception('Registro en la tabla no encontrado.');
+    } catch (PDOException $e) {
+      return array('estado'=>false,'mensaje'=>$e->getMessage());
+    } catch (Exception $e2){
+      return array('estado'=>false,'mensaje'=>$e2->getMessage());
+    }
+  }
   // Genera un string random
   private function generateRandomString($length = 25) {
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -22,7 +40,7 @@ class MyPDO
     }
     return $randomString;
   }
-  // Login
+  // Validar usuario y contaseña, genera un id y token si es valido
   public function login($data='')
   {
     try{
@@ -164,9 +182,6 @@ class MyPDO
       $consulta->execute();
       // Retornamos los resultados en un array asociativo.
       $result = $consulta->fetchAll(PDO::FETCH_ASSOC);
-      $prefijo = explode("_", $this->tableName)[0];
-      if ($prefijo == "media") 
-        return array('estado'=>true,'mensaje'=>"ok", 'result'=>array($prefijo => $this->parseJsonToArray($result))) ;
       return array('estado'=>true,'mensaje'=>"ok", 'result'=> $this->parseJsonToArray($result));
     } catch (PDOException $e) {
       return array('estado'=>false,'mensaje'=>$e->getMessage());
