@@ -21,7 +21,7 @@ class MyPDO
       //mandamos el insert con los parametros recibidos
       $consulta->execute(array(0));
       if($consulta->rowCount() == 1)
-        return array('estado'=>true,'mensaje'=>'Token desactivado, id_cliente:'.$value, 'result'=>array('estado'=>true,'mensaje'=>'OK'));
+        return array('estado'=>true,'mensaje'=>'Token desactivado, id_cliente:'.$value, 'result'=>array());
       else
         throw new Exception('Registro en la tabla no encontrado.');
     } catch (PDOException $e) {
@@ -53,7 +53,7 @@ class MyPDO
               $this->put(array('id_usuario' => $registro['id_usuario'] ), array('ultimo_login_dt' => date("Y-m-d H:i:s") ) );
               $token = $this->newToken($registro['id_usuario'],$data['ip_address']);
               if ($token['estado']) {
-                return array('estado'=>true, 'mensaje'=>'ok', 'result' => array('estado'=>true, 'mensaje'=>'ok', 'id_cliente' => $token['result']['id_cliente'], 
+                return array('estado'=>true, 'mensaje'=>'ok', 'result' => array('id_cliente' => $token['result']['id_cliente'], 
                   'token' => $token['result']['token'], 'usuario'=>$registro));
               }else
                 return array('estado'=>false,'mensaje'=>$token['mensaje']);
@@ -85,7 +85,7 @@ class MyPDO
             $interval = $date1->diff($date2)->h;
             if($interval <= 8){
               if (hash_equals($registro["token_txt"], $myheaders['PHP_AUTH_PW'][0]) && $registro["ip_cliente_txt"] == $myheaders['ip_address']) 
-                return array('estado'=>true, 'mensaje'=>'ok', 'result' => array('estado'=>true, 'mensaje'=>'ok'));
+                return array('estado'=>true, 'mensaje'=>'ok', 'result' => array());
             }else
               throw new Exception('Token invalido');
           }
@@ -112,7 +112,7 @@ class MyPDO
       if($consulta->execute($newData) == true) {
         $newId = $this->pdo->lastInsertId();
         return array('estado'=>true,'mensaje'=>"Insert into token_ma newId:".$newId,
-            'result'=> array('estado'=>true, 'mensaje'=>"Ok", 'id_cliente' => $id_cliente, 'token' => $token));
+            'result'=> array('id_cliente' => $id_cliente, 'token' => $token));
       }else
         return array('estado'=>false,'mensaje'=>"Error desconocido");
     } catch (PDOException $e) {
@@ -219,7 +219,7 @@ class MyPDO
       $consulta->execute();
       // Retornamos los resultados en un array asociativo.
       if($consulta->rowCount() == 1)
-        return array('estado'=>true,'mensaje'=>'Registro con id:'.$fileDelete.' borrado correctamente.', 'result'=>array('estado'=>true,'mensaje'=>'Registro con id:'.$fileDelete.' borrado correctamente.'));
+        return array('estado'=>true,'mensaje'=>'Registro con id:'.$fileDelete.' borrado correctamente.', 'result'=>array());
       else
         return array('estado'=>false,'mensaje'=>'Registro en la tabla no encontrado.');
     } catch (PDOException $e) {
@@ -243,11 +243,10 @@ class MyPDO
             $result = $this->getRegistro(array('id_paciente' => $newId));
             $newIdExp = $result['result'][0]['id_expediente'];
             return array('estado'=>true,'mensaje'=>"Insert into ".$this->tableName.' newId:'.$newId.' newIdExp:'.$newIdExp,
-              'result'=> array('estado'=>true, 'mensaje'=>"Registro insertado correctamente con id: ".$newId, 'newId' => $newId, 
-                'newIdExp' => $newIdExp));
+              'result'=> array('newId' => $newId, 'newIdExp' => $newIdExp));
           }
           return array('estado'=>true,'mensaje'=>"Insert into ".$this->tableName.' newId:'.$newId,
-              'result'=> array('estado'=>true, 'mensaje'=>"Registro insertado correctamente con id: ".$newId, 'newId' => $newId));
+              'result'=> array('newId' => $newId));
         }else
           return array('estado'=>false,'mensaje'=>"Error desconocido");
       }else
@@ -337,7 +336,7 @@ class MyPDO
         //mandamos el insert con los parametros recibidos
         $consulta->execute($myParse['params']);
         if($consulta->rowCount() == 1)
-          return array('estado'=>true,'mensaje'=>'Registro con id:'.$fieldAfected.' actualizado correctamente.', 'result'=>array('estado'=>true,'mensaje'=>'Registro con id:'.$fieldAfected.' actualizado correctamente.'));
+          return array('estado'=>true,'mensaje'=>'Registro con id:'.$fieldAfected.' actualizado correctamente.', 'result'=>array());
         else
           return array('estado'=>false,'mensaje'=>'Registro en la tabla no encontrado.');
       }else

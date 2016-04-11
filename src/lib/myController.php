@@ -63,7 +63,7 @@ class MyController {
     $this->logger->addInfo("Response->".$response['estado'].":Message->".$response['mensaje']);
   // Genera un response en base al status y agrega el result
     // return json_encode($response['estado']? array($this->prefijo => $response['result']):array($this->prefijo => array('estado'=>false,'mensaje'=>$response['mensaje'])));
-    return json_encode($response['estado']? array("result" => $response['result']):array("result" => array('estado'=>false,'mensaje'=>$response['mensaje'])));
+    return json_encode($response);
   }
 
   public function get($args = null)

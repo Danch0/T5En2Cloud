@@ -21,19 +21,14 @@ class Login extends MyController {
       unset($usuario['fecha_alta_dt']);
       unset($usuario['ultimo_login_dt']);
       unset($usuario['deleted_bool']);
-      return array('estado'=>true, 'mensaje'=>'ok', 'result' => array('estado'=>true, 'mensaje'=>'ok', 'id_cliente' => $response['result']['id_cliente'], 
-        'token' => $response['result']['token'], 'usuario'=>$usuario));
-    }else
-      return array('estado'=>false,'mensaje'=>$response['mensaje']);
+      $response['result']['usuario'] = $usuario;
+    }
+    return $response;
 	}
 
   public function put($args, $data = null)
   {
-    $response = $this->db->logout($data['PHP_AUTH_USER'][0]);
-    if ($response['estado']) {
-      return array('estado'=>true,'mensaje'=>'ok','result'=>$response['result']);
-    }else
-      return array('estado'=>false,'mensaje'=>$response['mensaje']);
+    return $this->db->logout($data['PHP_AUTH_USER'][0]);
   }
 
 }
