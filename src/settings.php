@@ -17,8 +17,8 @@ return [
         // PDO setting for mySQL
         'db' => [
             'host' => "localhost",
-            'user' => "root",
-            'pass' => "T00R123",
+            'user' => "2cloud",
+            'pass' => "25Cloud1!",
             'dbname' => "2cloud"
         ],
     ],
