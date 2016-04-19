@@ -49,9 +49,13 @@ class MyController {
       };
 
       if($method == 'POST') {
-        if($resourceUri[count($resourceUri)-1] == "login")
-          $data['ip_address'] = $ip_address;
-        $response = $this->post($data);
+        if($resourceUri[count($resourceUri)-1] == "function") {
+          $response = $this->myfunction($args,$data);
+        }else {
+          if($resourceUri[count($resourceUri)-1] == "login")
+            $data['ip_address'] = $ip_address;
+          $response = $this->post($data);
+        }
       }
       if($method == 'PUT') {
         if($resourceUri[count($resourceUri)-1] == "logout")
@@ -90,6 +94,11 @@ class MyController {
   public function put($args, $data = null)
   {
     return $this->db->put(array($this->tableId => $args['id']), $data);
+  }
+
+  public function myfunction($args = array(), $data = null)
+  {
+    return array('status' => true, 'mensaje' => "ok", 'result' => "{}");;
   }
 }
 ?>

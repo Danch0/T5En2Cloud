@@ -31,6 +31,8 @@ $app->group('/endodoncia-diente[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'EndodonciaDiente');
 });
 $app->get('/endodoncias-dientes', 'EndodonciaDiente');
+// ########################### Funciones ###########################
+$app->post('/function', 'Functions');
 // ########################### especialidad ###########################
 $app->group('/especialidad[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Especialidad');

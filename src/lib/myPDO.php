@@ -12,6 +12,40 @@ class MyPDO
     $this->pdo = $pdo;
     self::isdeleteLogic();
   }
+  // Reporte
+  public function reporte($value='')
+  {
+    try{
+      $query = "select id_usuario_alta_usuario_ma, count(*) from vw_endodoncia_det where deleted_bool = 0 group by id_usuario_alta_usuario_ma ";
+      $consulta = $this->pdo->prepare($query);
+      //mandamos el insert con los parametros recibidos
+      $consulta->execute();
+      // Retornamos los resultados en un array asociativo.
+      $result = $consulta->fetchAll(PDO::FETCH_ASSOC);
+      return array('estado'=>true,'mensaje'=>"ok", 'result'=> $result);
+    } catch (PDOException $e) {
+      return array('estado'=>false,'mensaje'=>$e->getMessage());
+    } catch (Exception $e2){
+      return array('estado'=>false,'mensaje'=>$e2->getMessage());
+    }
+  }
+  // Valida No. ficha, devuelve el numero de fichas encontradoas con la ficha espeficiada
+  public function validaFicha($value='')
+  {
+    try{
+      $query = "select * from ficha_ma where ficha_txt = '".$value."' ";
+      $consulta = $this->pdo->prepare($query);
+      //mandamos el insert con los parametros recibidos
+      $consulta->execute();
+      // Retornamos los resultados en un array asociativo.
+      $result = $consulta->fetchAll(PDO::FETCH_ASSOC);
+      return array('estado'=>true,'mensaje'=>"ok", 'result'=> count($result));
+    } catch (PDOException $e) {
+      return array('estado'=>false,'mensaje'=>$e->getMessage());
+    } catch (Exception $e2){
+      return array('estado'=>false,'mensaje'=>$e2->getMessage());
+    }
+  }
   // Desactivar token
   public function logout($value='')
   {
