@@ -10,7 +10,7 @@ $app->group('/ficha[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Ficha');
 });
 // En prural retornamos todas las fichas, asignamos el controlador correspondiente
-$app->get('/fichas', 'Ficha');
+$app->get('/fichas[/{limit}]', 'Ficha');
 // ########################### Login  ###########################
 // Validar usuario
 $app->post('/login', 'Login');
@@ -61,7 +61,7 @@ $app->get('/notas', 'Nota');
 $app->group('/paciente[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Paciente');
 });
-$app->get('/pacientes', 'Paciente');
+$app->get('/pacientes[/{limit}]', 'Paciente');
 // ########################### referencia ###########################
 $app->group('/referencia[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Referencia');

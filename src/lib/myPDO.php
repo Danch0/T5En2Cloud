@@ -16,7 +16,7 @@ class MyPDO
   public function reporte($value='')
   {
     try{
-      $query = "select id_usuario_alta_usuario_ma, count(*) from vw_endodoncia_det where deleted_bool = 0 group by id_usuario_alta_usuario_ma ";
+      $query = "select id_usuario_alta_usuario_ma, count(*) as total from vw_endodoncia_det where deleted_bool = 0 group by id_usuario_alta_usuario_ma ";
       $consulta = $this->pdo->prepare($query);
       //mandamos el insert con los parametros recibidos
       $consulta->execute();
@@ -33,7 +33,7 @@ class MyPDO
   public function validaFicha($value='')
   {
     try{
-      $query = "select * from ficha_ma where ficha_txt = '".$value."' ";
+      $query = "select * from ficha_ma where ficha_txt like CONCAT('".$value."', '%')" ;
       $consulta = $this->pdo->prepare($query);
       //mandamos el insert con los parametros recibidos
       $consulta->execute();
