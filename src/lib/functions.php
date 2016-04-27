@@ -22,6 +22,9 @@ class Functions extends MyController {
         case 'reporte':
           return $this->db->reporte();
           break;
+        case 'buscaFicha':
+          return $this->db->buscaFicha(isset($data['apellido_pat'])? $data['apellido_pat']:"");
+          break;
         default:
           array('estado'=>false,'mensaje'=>"Sin metodo especificado");
           break;

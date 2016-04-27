@@ -12,6 +12,23 @@ class MyPDO
     $this->pdo = $pdo;
     self::isdeleteLogic();
   }
+  // HAce una busqueda de fichas filtrando por la primera letra del apellido paterno
+  public function buscaFicha($value='')
+  {
+    try{
+      $query = "select * from vw_ficha_det where apellido_pat_txt like CONCAT('".$value."', '%')" ;
+      $consulta = $this->pdo->prepare($query);
+      //mandamos el insert con los parametros recibidos
+      $consulta->execute();
+      // Retornamos los resultados en un array asociativo.
+      $result = $consulta->fetchAll(PDO::FETCH_ASSOC);
+      return array('estado'=>true,'mensaje'=>"ok", 'result'=> $result);
+    } catch (PDOException $e) {
+      return array('estado'=>false,'mensaje'=>$e->getMessage());
+    } catch (Exception $e2){
+      return array('estado'=>false,'mensaje'=>$e2->getMessage());
+    }
+  }
   // Reporte
   public function reporte($value='')
   {
