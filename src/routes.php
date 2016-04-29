@@ -20,12 +20,12 @@ $app->put('/logout', 'Login');
 $app->group('/doctor[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Doctor');
 });
-$app->get('/doctores', 'Doctor');
+$app->get('/doctores[/{limit}]', 'Doctor');
 // ########################### endododoncia ###########################
 $app->group('/endodoncia[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Endodoncia');
 });
-$app->get('/endodoncias', 'Endodoncia');
+$app->get('/endodoncias[/{limit}]', 'Endodoncia');
 // ########################### endododoncia-diente ###########################
 $app->group('/endodoncia-diente[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'EndodonciaDiente');
@@ -37,17 +37,17 @@ $app->post('/function', 'Functions');
 $app->group('/especialidad[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Especialidad');
 });
-$app->get('/especialidades', 'Especialidad');
+$app->get('/especialidades[/{limit}]', 'Especialidad');
 // ########################### expediente ###########################
 $app->group('/expediente[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'PUT'], '', 'Expediente');
 });
-$app->get('/expedientes', 'Expediente');
+$app->get('/expedientes[/{limit}]', 'Expediente');
 // ########################### factura ###########################
 $app->group('/factura[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Factura');
 });
-$app->get('/facturas', 'Factura');
+$app->get('/facturas[/{limit}]', 'Factura');
 // ########################### media ###########################
 $app->group('/media[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Media');
@@ -56,7 +56,7 @@ $app->group('/media[/{id}[/{filter}]]', function () {
 $app->group('/nota[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Nota');
 });
-$app->get('/notas', 'Nota');
+$app->get('/notas[/{limit}]', 'Nota');
 // ########################### paciente ###########################
 $app->group('/paciente[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Paciente');
@@ -66,14 +66,14 @@ $app->get('/pacientes[/{limit}]', 'Paciente');
 $app->group('/referencia[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Referencia');
 });
-$app->get('/referencias', 'Referencia');
+$app->get('/referencias[/{limit}]', 'Referencia');
 // ########################### rol ###########################
 $app->group('/rol[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Rol');
 });
-$app->get('/roles', 'Rol');
+$app->get('/roles[/{limit}]', 'Rol');
 // ########################### usuario ###########################
 $app->group('/usuario[/{id}[/{filter}]]', function () {
   $this->map(['GET', 'DELETE', 'POST', 'PUT'], '', 'Usuario');
 });
-$app->get('/usuarios', 'Usuario');
+$app->get('/usuarios[/{limit}]', 'Usuario');

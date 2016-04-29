@@ -50,7 +50,7 @@ class MyPDO
   public function validaFicha($value='')
   {
     try{
-      $query = "select * from ficha_ma where ficha_txt like CONCAT('".$value."', '%')" ;
+      $query = "select * from ficha_ma where ficha_txt like CONCAT('".$value."', '%') AND (ISNULL(deleted_bool) OR deleted_bool = 0)";
       $consulta = $this->pdo->prepare($query);
       //mandamos el insert con los parametros recibidos
       $consulta->execute();
@@ -188,11 +188,11 @@ class MyPDO
   public function getAll($limit = "")
   {
     try {
-      $limit = $limit != "" ? $limit : "1000";
+      $limit = $limit != "" ? " limit ".$limit : "";
       if ($this->deleteLogic) {
-        $consulta = $this->pdo->prepare("select * from ".$this->tableGet." where deleted_bool <> 1 OR isnull(deleted_bool) limit ".$limit);
+        $consulta = $this->pdo->prepare("select * from ".$this->tableGet." where deleted_bool <> 1 OR isnull(deleted_bool)".$limit);
       }else
-        $consulta = $this->pdo->prepare("select * from ".$this->tableGet." limit ".$limit);
+        $consulta = $this->pdo->prepare("select * from ".$this->tableGet.$limit);
   		$consulta->execute();
       // Retornamos los resultados en un array asociativo.
       $result = ($consulta->fetchAll(PDO::FETCH_ASSOC));
